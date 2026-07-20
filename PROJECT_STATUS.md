@@ -4,7 +4,7 @@ Updated: 2026-07-20
 
 ## Current phase
 
-**V0.1 — Repository bootstrap and data contract**
+**V0.2 — First usable manual import pipeline implemented**
 
 ## Objective
 
@@ -14,31 +14,39 @@ Build a standalone odds-history system that receives manually captured JSON, val
 
 - Repository created
 - Public code/data boundary documented
-- Initial README added
-- Ignore rules added for local databases, credentials, HAR files, and generated exports
+- Python package and CLI configured
+- American-to-decimal conversion implemented
+- Raw implied probability calculation implemented
+- Pinnacle-style `matchups` and `straight` manual normalizer implemented
+- Futures records joined by `matchupId` and `participantId`
+- SQLite schema implemented
+- Separate `observed_at`, `ingested_at`, `scheduled_tipoff`, and `cutoff_at` fields
+- Exact-snapshot deduplication implemented
+- CSV and JSON exports implemented
+- Synthetic sample payloads added
+- Unit and integration tests added
+- GitHub Actions test workflow added
+- Manual import and data-contract documentation added
 
-## In progress
+## Validation status
 
-- Core odds conversion helpers
-- Pinnacle `matchups` and `straight` manual importer
-- SQLite schema
-- Snapshot deduplication contract
-- Command-line import workflow
+- Code review: completed for the first implementation slice
+- Automated test workflow: added; latest run must be checked in GitHub Actions
+- Real captured Pinnacle files: not committed to the public repository
+- General NBA game markets: parser support is provisional and requires real-file validation
 
 ## Next milestone
 
-**V0.2 — First usable manual import pipeline**
+**V0.3 — Real snapshot validation and history-quality controls**
 
-Acceptance criteria:
+Planned work:
 
-1. Read one `matchups.json` and one `straight.json` file.
-2. Validate required fields.
-3. Join records by `matchupId` and `participantId`.
-4. Add `observed_at` and `ingested_at` separately.
-5. Convert American odds to decimal odds and raw implied probability.
-6. Write normalized rows into SQLite.
-7. Avoid inserting exact duplicate snapshots.
-8. Export normalized CSV and JSON.
+1. Validate the importer against the captured NBA Futures files.
+2. Add an import quality report showing matched and unmatched `matchupId` values.
+3. Add change-aware deduplication options.
+4. Add bookmaker and source registry tables.
+5. Add canonical event identity placeholders for NBA Value Lab joins.
+6. Add a browser dashboard for current snapshots and historical movement.
 
 ## Research boundary
 
