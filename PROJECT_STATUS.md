@@ -4,7 +4,7 @@ Updated: 2026-07-20
 
 ## Current phase
 
-**V0.4 — Multi-snapshot history builder ready**
+**V0.4 — Multi-snapshot history builder and second-snapshot intake gate ready**
 
 ## Completed
 
@@ -21,6 +21,10 @@ Updated: 2026-07-20
 - `odds-hub-build-history` command
 - Dashboard readiness card and movement chart renderer
 - Public status file showing one real snapshot and zero movement-ready quotes
+- `odds-hub-validate-intake` command
+- Three-file intake package contract: `matchups.json`, `straight.json`, and `metadata.json`
+- SHA-256, timezone, structural QA, and possible sensitive-key checks before import
+- Public second-snapshot intake page and GitHub issue form
 
 ## Current real-data validation
 
@@ -34,27 +38,37 @@ Updated: 2026-07-20
 
 ## Exact next input required
 
-A second owner-supplied raw pair:
+A second owner-supplied package:
 
 ```text
 matchups.json
 straight.json
-true observed_at with timezone
+metadata.json
 ```
 
-It must be imported without overwriting the first snapshot. The generated import-quality report must be reviewed before the second snapshot is accepted.
+`metadata.json` must contain the true timezone-aware `observedAt`, `sourceId`, and `bookmakerId`.
+
+The package must first produce:
+
+```text
+readyForImport = true
+```
+
+It must then be imported without overwriting the first snapshot. The intake report and generated import-quality report must both be reviewed before acceptance.
 
 ## Next milestone
 
 **V0.4 data activation**
 
-1. Import the second real snapshot.
-2. Confirm matched/unmatched IDs, duplicate diagnostics, and source health.
-3. Generate grouped histories.
-4. Publish only quote identities with at least two distinct observations to the movement chart.
-5. Keep opening/closing labels unset unless their definitions are independently verified.
-6. Begin canonical NBA Value Lab event mapping only with explicit, audited IDs.
+1. Receive the second real snapshot package.
+2. Run the intake validator and review SHA-256, sensitive-key findings, and structural QA.
+3. Import the snapshot with `changes-only` retention.
+4. Confirm matched/unmatched IDs, duplicate diagnostics, and source health.
+5. Generate grouped histories.
+6. Publish only quote identities with at least two distinct observations to the movement chart.
+7. Keep opening/closing labels unset unless their definitions are independently verified.
+8. Begin canonical NBA Value Lab event mapping only with explicit, audited IDs.
 
 ## Research boundary
 
-The history builder being ready does not mean the project has historical movement data. With only one real `observed_at`, opening/closing classification, executable point-in-time joins, CLV, EV, ROI, betting edge, and staking remain blocked.
+The history builder and intake gate being ready do not mean the project has historical movement data. With only one real `observed_at`, opening/closing classification, executable point-in-time joins, CLV, EV, ROI, betting edge, and staking remain blocked.

@@ -2,15 +2,16 @@
 
 NBA odds ingestion, normalization, timestamped storage, quality reporting, history building, visualization, and research-safe export hub for NBA Value Lab.
 
-## Live dashboard
+## Live pages
 
-https://qoo109.github.io/nba-odds-history-hub/
+- Dashboard: https://qoo109.github.io/nba-odds-history-hub/
+- Second snapshot intake: https://qoo109.github.io/nba-odds-history-hub/snapshot-intake.html
 
 The public dashboard currently contains one reviewed NBA Futures snapshot observed at `2026-07-20T11:10:00+08:00`: 5 markets, 91 options, 5 matched `matchupId`, and 0 unmatched IDs. It is a historical snapshot viewer, not a live feed.
 
 ## Current status
 
-**V0.4 — multi-snapshot history builder ready; second real snapshot still required**
+**V0.4 — multi-snapshot history builder and second-snapshot intake gate ready**
 
 Implemented:
 
@@ -29,6 +30,8 @@ Implemented:
 - Snapshot coverage and source-health summaries
 - Research-safe NBA Value Lab odds export with all market gates closed by default
 - Dashboard history-readiness panel and dormant movement chart renderer
+- Second-snapshot intake package validator with SHA-256 and sensitive-key checks
+- GitHub issue form and public intake page
 - Automated tests and GitHub Actions
 
 ## Quick start
@@ -41,13 +44,28 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Import a real snapshot:
+Validate a candidate second snapshot before import:
+
+```bash
+odds-hub-validate-intake \
+  --package-dir /path/to/second-snapshot
+```
+
+The directory must contain:
+
+```text
+matchups.json
+straight.json
+metadata.json
+```
+
+Import only after `intake_report.json` shows `readyForImport: true`:
 
 ```bash
 odds-hub-import \
-  --matchups /path/to/matchups.json \
-  --straight /path/to/straight.json \
-  --observed-at "2026-07-20T11:10:00+08:00" \
+  --matchups /path/to/second-snapshot/matchups.json \
+  --straight /path/to/second-snapshot/straight.json \
+  --observed-at "2026-07-21T11:10:00+08:00" \
   --source pinnacle_manual \
   --bookmaker pinnacle \
   --dedupe-mode changes-only
@@ -69,7 +87,7 @@ exports/history/source_health.json
 exports/history/nba_value_lab_odds_export.json
 ```
 
-See [`docs/manual-import.md`](docs/manual-import.md), [`docs/data-contract.md`](docs/data-contract.md), [`docs/v0.3-history-quality-controls.md`](docs/v0.3-history-quality-controls.md), and [`docs/v0.4-multi-snapshot-history.md`](docs/v0.4-multi-snapshot-history.md).
+See [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md), [`docs/manual-import.md`](docs/manual-import.md), [`docs/data-contract.md`](docs/data-contract.md), [`docs/v0.3-history-quality-controls.md`](docs/v0.3-history-quality-controls.md), and [`docs/v0.4-multi-snapshot-history.md`](docs/v0.4-multi-snapshot-history.md).
 
 ## Public repository boundary
 
@@ -82,5 +100,5 @@ A single snapshot cannot be called opening, closing, or line movement history. M
 - **V0.1** Repository structure and data contract — implemented
 - **V0.2** Manual JSON importer — implemented
 - **V0.3** Real snapshot validation, dashboard, QA, registries, and history-quality controls — implemented
-- **V0.4** Multi-snapshot history builder and movement-dashboard readiness — implemented; awaiting second real snapshot
+- **V0.4** History builder and second-snapshot intake gate — implemented; awaiting the second real snapshot
 - **V0.5** Canonical NBA Value Lab join validation and point-in-time export hardening — blocked until real multi-snapshot data exists
