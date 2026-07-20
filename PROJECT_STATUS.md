@@ -4,40 +4,57 @@ Updated: 2026-07-20
 
 ## Current phase
 
-**V0.3 — Real snapshot validation and history-quality controls**
+**V0.4 — Multi-snapshot history builder ready**
 
 ## Completed
 
-- V0.2 Python package, CLI, importer, SQLite schema, exports, tests, and GitHub Actions
-- First owner-supplied NBA Futures snapshot and GitHub Pages dashboard
-- 5 futures markets, 91 options, 5 matched `matchupId`, 0 unmatched IDs in the reviewed public snapshot
-- Formal import-quality report generator
-- Matched/unmatched matchup reporting
-- Duplicate market, matchup, and participant diagnostics
-- Orphan participant and invalid price diagnostics
-- `exact` and `changes-only` retention modes
-- Strictly-prior comparison for out-of-order historical backfills
-- Source and bookmaker registry tables
-- Unmapped source-event placeholders for future NBA Value Lab joins
-- Explicit canonical-event mapping functions
-- Additive V0.2 SQLite migration
-- Unit tests for QA reports, changed-price retention, out-of-order backfills, registries, mappings, and migration
+- V0.2 importer, SQLite storage, exports, tests, and GitHub Actions
+- V0.3 real snapshot validation, public dashboard, QA report, registries, canonical mapping placeholders, and history-aware retention
+- Stable quote identity that excludes price and line values
+- Grouped quote-history export
+- Distinct-observation counting and duplicate-observed-time flags
+- First/latest quote comparison and movement direction
+- Snapshot coverage summaries
+- Source-health summaries that never treat missing rows as unchanged
+- NBA Value Lab research export contract with `observed_at` preserved
+- Explicit gates keeping opening/closing, executable backtest, CLV, EV, and ROI disabled
+- `odds-hub-build-history` command
+- Dashboard readiness card and movement chart renderer
+- Public status file showing one real snapshot and zero movement-ready quotes
 
-## Validation boundary
+## Current real-data validation
 
-The first public snapshot is still only one observation time. Historical movement, opening/closing labels, CLV, EV, ROI, and market backtesting remain blocked.
+- Real snapshots: 1
+- Futures markets: 5
+- Quote identities: 91
+- Movement-ready quote identities: 0
+- Canonical mapping coverage: 0%
+- Historical movement ready: no
+- Executable market backtest ready: no
+
+## Exact next input required
+
+A second owner-supplied raw pair:
+
+```text
+matchups.json
+straight.json
+true observed_at with timezone
+```
+
+It must be imported without overwriting the first snapshot. The generated import-quality report must be reviewed before the second snapshot is accepted.
 
 ## Next milestone
 
-**V0.4 — Multi-snapshot history builder**
+**V0.4 data activation**
 
-1. Import a second owner-supplied raw `matchups.json` + `straight.json` pair with its true `observed_at`.
-2. Review the generated quality report before accepting the snapshot.
-3. Build a history export grouped by quote identity.
-4. Add movement charts only for quotes with at least two observations.
-5. Add source-health and snapshot-coverage summaries.
-6. Define the first NBA Value Lab odds export contract without claiming executable backtest readiness.
+1. Import the second real snapshot.
+2. Confirm matched/unmatched IDs, duplicate diagnostics, and source health.
+3. Generate grouped histories.
+4. Publish only quote identities with at least two distinct observations to the movement chart.
+5. Keep opening/closing labels unset unless their definitions are independently verified.
+6. Begin canonical NBA Value Lab event mapping only with explicit, audited IDs.
 
 ## Research boundary
 
-This repository is a data-engineering component. It does not by itself unlock NBA Value Lab point-in-time joins, closing-line validation, CLV, EV, ROI, betting edge, or staking.
+The history builder being ready does not mean the project has historical movement data. With only one real `observed_at`, opening/closing classification, executable point-in-time joins, CLV, EV, ROI, betting edge, and staking remain blocked.
