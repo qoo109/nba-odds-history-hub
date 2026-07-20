@@ -1,0 +1,58 @@
+{
+  "schema_version": "automation-sources-v1",
+  "sources": [
+    {
+      "id": "nba_official_injury_reports",
+      "kind": "html_links",
+      "index_url": "https://official.nba.com/nba-injury-report-2025-26-season/",
+      "allowed_suffixes": [".pdf"],
+      "min_interval_hours": 6,
+      "max_links_per_run": 80,
+      "automation_allowed": true,
+      "enabled": true,
+      "usage_boundary": "Public official index and linked PDFs only; stop on access controls or terms changes."
+    },
+    {
+      "id": "shufinskiy_nba_data_manifest",
+      "kind": "file",
+      "url": "https://raw.githubusercontent.com/shufinskiy/nba_data/main/list_data.txt",
+      "min_interval_hours": 24,
+      "automation_allowed": true,
+      "enabled": true,
+      "usage_boundary": "Manifest monitoring only; large season archives require a separately reviewed backfill run."
+    },
+    {
+      "id": "nba_api_latest_release",
+      "kind": "file",
+      "url": "https://api.github.com/repos/swar/nba_api/releases/latest",
+      "min_interval_hours": 24,
+      "automation_allowed": true,
+      "enabled": true,
+      "usage_boundary": "Public GitHub release metadata only."
+    },
+    {
+      "id": "pbpstats_latest_commit",
+      "kind": "file",
+      "url": "https://api.github.com/repos/dblackrun/pbpstats/commits?per_page=1",
+      "min_interval_hours": 24,
+      "automation_allowed": true,
+      "enabled": true,
+      "usage_boundary": "Public GitHub repository metadata only."
+    },
+    {
+      "id": "balldontlie_docs_health",
+      "kind": "file",
+      "url": "https://nba.balldontlie.io/",
+      "min_interval_hours": 24,
+      "automation_allowed": true,
+      "enabled": true,
+      "usage_boundary": "Documentation health and schema-change monitoring only."
+    }
+  ],
+  "manual_only_sources": [
+    {"id": "oddsportal", "reason": "Manual browser verification only; no automated bulk extraction."},
+    {"id": "covers", "reason": "Manual or separately licensed use only."},
+    {"id": "basketball_reference", "reason": "Manual reference only under current project policy."},
+    {"id": "sbr_legacy", "reason": "Availability and terms must be revalidated before automation."}
+  ]
+}
