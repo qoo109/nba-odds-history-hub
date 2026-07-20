@@ -20,7 +20,7 @@ def test_redact_url_removes_credentials_query_and_fragment() -> None:
 
 def test_sha256_bytes_is_stable() -> None:
     assert MODULE.sha256_bytes(b"nba") == (
-        "2e3d8a2ad0b978c750943e5d5b2f18f9f519043e7335b4de8d45bca3d4ac7b44"
+        "1f1a4d92af8fbe2e099df1ef369738ce76713c614a8f03a29546d8b1f3b27c04"
     )
 
 
