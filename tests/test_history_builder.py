@@ -113,3 +113,13 @@ def test_source_health_and_nba_export_keep_gates_closed() -> None:
     assert export["gates"]["canonicalMappingComplete"] is False
     assert export["gates"]["executableBacktestReady"] is False
     assert export["gates"]["clvReady"] is False
+
+
+def test_two_global_times_without_quote_overlap_are_not_movement_ready() -> None:
+    first = row("2026-07-20T11:10:00+08:00", 200, 3.0, 0.33333333)
+    second = row("2026-07-21T11:10:00+08:00", 150, 2.5, 0.4, snapshot_id=2)
+    second["participant_id"] = 9999
+    second["participant_name"] = "Different Team"
+    health = build_source_health_payload([first, second], generated_at="x")
+    assert health["qualityFlags"]["multipleSnapshotTimesPresent"] is True
+    assert health["qualityFlags"]["historicalMovementReady"] is False
