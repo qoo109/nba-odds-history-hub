@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1001,
+    "league": {
+      "name": "NBA",
+      "sport": {
+        "name": "Basketball"
+      }
+    },
+    "participants": [
+      {
+        "id": 2001,
+        "name": "Example Participant A",
+        "alignment": "neutral",
+        "rotation": 9001
+      },
+      {
+        "id": 2002,
+        "name": "Example Participant B",
+        "alignment": "neutral",
+        "rotation": 9002
+      }
+    ],
+    "special": {
+      "category": "Futures",
+      "description": "Synthetic Example Award"
+    },
+    "startTime": "2026-10-31T16:00:00Z"
+  }
+]
