@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "v0.3-bookmaker-registry",
+  "bookmakers": [
+    {
+      "bookmakerId": "pinnacle",
+      "displayName": "Pinnacle",
+      "sourceId": "pinnacle_manual",
+      "active": true,
+      "note": "Registry label for owner-supplied manual snapshots; not a claim of official API access."
+    }
+  ]
+}
