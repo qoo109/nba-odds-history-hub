@@ -287,6 +287,15 @@ def build_nba_value_lab_export(
     }
 
 
+def write_json(payload: dict[str, Any], output: str | Path) -> Path:
+    path = Path(output)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return path
+
+
 def build_source_health_payload(
     rows: Iterable[dict[str, Any]], *, generated_at: str | None = None
 ) -> dict[str, Any]:
@@ -323,6 +332,10 @@ def build_source_health_payload(
     all_times = sorted(
         {str(row["observed_at"]) for row in materialized}, key=_parse_time
     )
+    quote_times: dict[tuple[Any, ...], set[str]] = defaultdict(set)
+    for row in materialized:
+        quote_times[quote_identity(row)].add(str(row["observed_at"]))
+    movement_ready = any(len(times) >= 2 for times in quote_times.values())
     return {
         "schemaVersion": "v0.4-source-health",
         "generatedAt": generated_at or _utc_now_iso(),
@@ -336,18 +349,10 @@ def build_source_health_payload(
                 bool(row.get("observed_at")) for row in materialized
             ),
             "missingRowsInterpretedAsUnchanged": False,
-            "historicalMovementReady": len(all_times) >= 2,
+            "multipleSnapshotTimesPresent": len(all_times) >= 2,
+            "historicalMovementReady": movement_ready,
         },
     }
-
-
-def write_json(payload: dict[str, Any], output: str | Path) -> Path:
-    path = Path(output)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    return path
 
 
 def export_history_bundle(
