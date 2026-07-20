@@ -1,0 +1,26 @@
+[
+  {
+    "cutoffAt": "2026-10-31T16:00:00+00:00",
+    "key": "s;0;m",
+    "limits": [
+      {
+        "amount": 250,
+        "type": "maxRiskStake"
+      }
+    ],
+    "matchupId": 1001,
+    "period": 0,
+    "prices": [
+      {
+        "participantId": 2001,
+        "price": 188
+      },
+      {
+        "participantId": 2002,
+        "price": -211
+      }
+    ],
+    "type": "moneyline",
+    "version": 123
+  }
+]
