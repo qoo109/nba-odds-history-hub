@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+cookies.json
+tokens.json
+*.har
+
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/
+
+# Runtime data
+/data/raw/*
+!/data/raw/.gitkeep
+/data/processed/*
+!/data/processed/.gitkeep
+/data/databases/*
+!/data/databases/.gitkeep
+/exports/*
+!/exports/.gitkeep
+
+# SQLite and generated files
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.csv.gz
+*.json.gz
+*.parquet
+
+# Logs
+*.log
