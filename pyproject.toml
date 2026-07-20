@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nba-odds-history-hub"
-version = "0.3.0"
+version = "0.4.0"
 description = "Timestamped NBA odds ingestion, normalization, storage, and export hub."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,6 +16,7 @@ dev = ["pytest>=8.0,<9.0"]
 
 [project.scripts]
 odds-hub-import = "nba_odds_history_hub.cli:main"
+odds-hub-build-history = "nba_odds_history_hub.history_cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
