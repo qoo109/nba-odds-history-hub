@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "v0.3-source-registry",
+  "sources": [
+    {
+      "sourceId": "pinnacle_manual",
+      "displayName": "Pinnacle manual browser capture",
+      "sourceClass": "manual_browser_capture",
+      "accessMode": "manual",
+      "usageBoundary": "Owner-supplied response bodies only. Do not commit cookies, authorization headers, session tokens, HAR files, or automated access logic.",
+      "automationApproved": false
+    }
+  ]
+}
