@@ -6,16 +6,18 @@ CREATE TABLE IF NOT EXISTS raw_imports (
     source TEXT NOT NULL,
     observed_at TEXT NOT NULL,
     ingested_at TEXT NOT NULL,
-    raw_sha256 TEXT NOT NULL UNIQUE,
+    raw_sha256 TEXT NOT NULL,
     matchup_count INTEGER NOT NULL,
     market_count INTEGER NOT NULL,
     normalized_row_count INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'accepted',
-    note TEXT
+    note TEXT,
+    UNIQUE (raw_sha256, observed_at)
 );
 
 CREATE TABLE IF NOT EXISTS odds_snapshots (
     snapshot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    import_id INTEGER NOT NULL,
     source TEXT NOT NULL,
     league TEXT,
     sport TEXT,
@@ -38,7 +40,7 @@ CREATE TABLE IF NOT EXISTS odds_snapshots (
     market_key TEXT,
     is_alternate INTEGER NOT NULL DEFAULT 0 CHECK (is_alternate IN (0, 1)),
     raw_sha256 TEXT NOT NULL,
-    FOREIGN KEY (raw_sha256) REFERENCES raw_imports(raw_sha256),
+    FOREIGN KEY (import_id) REFERENCES raw_imports(import_id) ON DELETE CASCADE,
     UNIQUE (
         source,
         source_event_id,
