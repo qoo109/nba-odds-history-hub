@@ -43,6 +43,16 @@ def test_market_files_and_odds_consistency() -> None:
     assert options == 91
 
 
+def test_v04_public_history_gate_is_honest() -> None:
+    latest = json.loads((PUBLIC / "latest.json").read_text(encoding="utf-8"))
+    status = json.loads((ROOT / latest["historyStatus"]).read_text(encoding="utf-8"))
+    assert status["snapshotCount"] == 1
+    assert status["quoteCount"] == 91
+    assert status["movementReadyQuoteCount"] == 0
+    assert status["historyReady"] is False
+    assert status["executableBacktestReady"] is False
+
+
 def test_dashboard_contract() -> None:
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "NBA Odds History Hub" in html
@@ -50,3 +60,5 @@ def test_dashboard_contract() -> None:
     assert "下載完整 JSON" in html
     assert "下載完整 CSV" in html
     assert "登入繞過" in html
+    assert "V0.4" in html
+    assert "history-status.json" in html
