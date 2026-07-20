@@ -1,6 +1,9 @@
 name: Daily source health and Drive backup
 
 on:
+  push:
+    branches:
+      - run/source-health-once-20260720
   workflow_dispatch:
     inputs:
       dry_run:
@@ -30,14 +33,14 @@ env:
   GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
   GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
   # Odds URLs are exposed only for an explicit manual run. Daily scheduled runs
-  # remain source-health/backup jobs until odds capture is intentionally enabled.
+  # and this isolated one-time push run remain source-health/backup jobs.
   ODDS_MATCHUPS_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_odds_capture && secrets.ODDS_MATCHUPS_URL || '' }}
   ODDS_STRAIGHT_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_odds_capture && secrets.ODDS_STRAIGHT_URL || '' }}
   ODDS_SOURCE_ID: ${{ vars.ODDS_SOURCE_ID || 'configured_http_source' }}
   ODDS_SOURCE_NAME: ${{ vars.ODDS_SOURCE_NAME || 'Configured HTTP odds source' }}
   ODDS_BOOKMAKER_ID: ${{ vars.ODDS_BOOKMAKER_ID || 'configured_bookmaker' }}
   ODDS_BOOKMAKER_NAME: ${{ vars.ODDS_BOOKMAKER_NAME || 'Configured bookmaker' }}
-  AUTOMATION_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+  AUTOMATION_DRY_RUN: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run) || false }}
 
 jobs:
   automate:
