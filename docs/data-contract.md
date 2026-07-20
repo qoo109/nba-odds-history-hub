@@ -1,27 +1,42 @@
 # Normalized Odds Data Contract
 
-Version: `v0.1`
+Version: `v0.3`
 
 ## Purpose
 
-This contract separates source-specific payloads from the stable format consumed by storage, exports, dashboards, and NBA Value Lab.
+This contract separates source-specific payloads from the stable format consumed by SQLite, exports, dashboards, and future NBA Value Lab joins.
 
 ## Time fields
 
 | Field | Meaning |
 |---|---|
-| `observed_at` | When the price was actually observed at the source |
-| `ingested_at` | When Odds History Hub processed and stored the payload |
-| `scheduled_tipoff` | Scheduled game or market start time from the source |
+| `observed_at` | When the quoted price was actually observed |
+| `ingested_at` | When Odds History Hub processed the payload |
+| `scheduled_tipoff` | Scheduled game or source-market start time |
 | `cutoff_at` | Source market cutoff time |
 
-All timestamps must be ISO-8601 and include a timezone.
+All timestamps must be ISO-8601 with a timezone. `cutoff_at` must never be substituted for `observed_at`.
+
+## Identity fields
+
+| Field | Meaning |
+|---|---|
+| `source` | Source registry ID |
+| `bookmaker_id` | Bookmaker registry ID |
+| `source_event_id` | Source-native event or futures-market ID |
+| `canonical_event_id` | Explicit NBA Value Lab mapping; nullable until verified |
+| `participant_id` | Source-native participant ID |
+| `market_key` | Source-native market identity |
+
+`source_events` begin with `mapping_status = unmapped`. The importer does not invent canonical NBA Value Lab IDs.
 
 ## Normalized row
 
 ```json
 {
   "source": "pinnacle_manual",
+  "bookmaker_id": "pinnacle",
+  "canonical_event_id": null,
   "league": "NBA",
   "sport": "Basketball",
   "source_event_id": 1631943127,
@@ -46,30 +61,17 @@ All timestamps must be ISO-8601 and include a timezone.
 }
 ```
 
-## Required fields
+## Change-aware quote identity
 
-- `source`
-- `source_event_id`
-- `market_type`
-- `period`
-- `participant_name`
-- `american_odds`
-- `decimal_odds`
-- `raw_implied_probability`
-- `observed_at`
-- `ingested_at`
-- `raw_sha256`
+For `changes-only` retention, one quote is identified by:
+
+```text
+source, bookmaker_id, source_event_id, market_type, period,
+side, participant_id, is_alternate
+```
+
+A new history row is kept when `line` or `american_odds` differs from the latest earlier row. Missing source rows are not interpreted as unchanged.
 
 ## Probability warning
 
-`raw_implied_probability` is the direct probability implied by one quoted price. It is not de-vigged and must not be treated as fair probability.
-
-## Identity strategy
-
-V0.1 preserves source-native identifiers:
-
-- `source_event_id`
-- `participant_id`
-- `market_key`
-
-A later milestone will add canonical event, team, participant, and bookmaker identifiers for cross-source joins.
+`raw_implied_probability` is the direct probability implied by one price. It is not de-vigged and must not be treated as fair probability.
