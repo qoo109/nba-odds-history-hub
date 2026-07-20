@@ -2,36 +2,27 @@
 
 NBA odds history ingestion, normalization, storage, visualization, and export hub for NBA Value Lab.
 
+## Live dashboard
+
+https://qoo109.github.io/nba-odds-history-hub/
+
+The dashboard currently contains one owner-supplied NBA Futures snapshot observed at `2026-07-20T11:10:00+08:00`: 5 markets, 91 options, 5 matched `matchupId`, and 0 unmatched IDs. It is a historical snapshot viewer, not a live odds feed.
+
 ## Current status
 
-**V0.2 — first manual import pipeline implemented**
+**V0.3 — first real futures snapshot and GitHub Pages dashboard**
 
-The repository currently includes:
+Implemented:
 
-- Manual JSON import for `matchups` and `straight` responses
-- Timestamped odds snapshots with separate `observed_at` and `ingested_at`
-- American-to-decimal odds conversion
-- Raw implied probability calculation
-- Event, market, and participant normalization
-- SQLite storage and exact-snapshot deduplication
-- CSV/JSON exports for NBA Value Lab
-- Synthetic sample files and automated tests
-
-## Data flow
-
-```text
-Source page data
-      ↓
-Manual JSON import
-      ↓
-Validation and normalization
-      ↓
-SQLite history database
-      ↓
-CSV / JSON exports
-      ↓
-NBA Value Lab
-```
+- Manual `matchups` + `straight` JSON importer
+- Separate `observed_at` and `ingested_at`
+- American-to-decimal conversion and raw implied probability
+- SQLite history storage and exact-snapshot deduplication
+- CSV/JSON exports
+- Automated Python tests and GitHub Actions
+- First reviewed public NBA Futures snapshot
+- Snapshot manifest with SHA-256, counts, matching results, and quality flags
+- Static dashboard with search, sorting, overround display, and generated CSV/JSON downloads
 
 ## Quick start
 
@@ -43,8 +34,6 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Run the synthetic example:
-
 ```bash
 odds-hub-import \
   --matchups data/samples/matchups.sample.json \
@@ -52,33 +41,19 @@ odds-hub-import \
   --observed-at "2026-07-20T11:10:00+08:00"
 ```
 
-Generated local outputs:
-
-```text
-data/databases/odds_history.sqlite
-exports/odds_history.json
-exports/odds_history.csv
-```
-
-See [`docs/manual-import.md`](docs/manual-import.md) for the full workflow and [`docs/data-contract.md`](docs/data-contract.md) for the normalized schema.
+See [`docs/manual-import.md`](docs/manual-import.md), [`docs/data-contract.md`](docs/data-contract.md), and [`docs/v0.3-futures-dashboard.md`](docs/v0.3-futures-dashboard.md).
 
 ## Public repository boundary
 
-This repository contains source code, schemas, documentation, tests, and small sanitized samples. Large or continuously changing databases should be stored outside Git.
+The repository contains code, schemas, documentation, tests, and small reviewed snapshots. Large or continuously changing databases stay outside Git. Never commit cookies, authorization headers, session tokens, credentials, HAR files, or private account data. Do not bypass access controls, CAPTCHAs, authentication, or rate limits.
 
-The project does not require all third-party data to remain private. Each source can be reviewed individually. Public samples should document their source and usage boundary.
+A single snapshot cannot be called opening, closing, or line movement history without additional timestamped observations.
 
-## Security rules
-
-- Never commit cookies, authorization headers, session tokens, passwords, or private account data.
-- Preserve the true observation time separately from market cutoff and game start times.
-- Keep source attribution and usage notes with each imported dataset.
-- Do not bypass access controls, authentication, CAPTCHAs, or rate limits.
-
-## Planned milestones
+## Roadmap
 
 - **V0.1** Repository structure and data contract — implemented
-- **V0.2** Pinnacle manual JSON importer — implemented, validation in progress
-- **V0.3** SQLite history quality checks and change-aware deduplication
-- **V0.4** Historical odds dashboard
+- **V0.2** Manual JSON importer — implemented
+- **V0.3** Real snapshot validation and first dashboard — active
+- **V0.3 next** Import quality report, change-aware deduplication, bookmaker/source registry tables, and NBA Value Lab event identity placeholders
+- **V0.4** Multi-snapshot historical movement dashboard
 - **V0.5** NBA Value Lab export contract
