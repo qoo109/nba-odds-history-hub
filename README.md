@@ -34,6 +34,14 @@ Implemented:
 - GitHub issue form and public intake page
 - Automated tests and GitHub Actions
 
+## Full automation candidate
+
+The `automation/full-download-drive-v1` branch adds an hourly, deduplicated pipeline that belongs only to this repository. It does **not** connect to or modify `qoo109/nba-value-lab`.
+
+It can restore state from Google Drive, check approved free/public sources, download only new or changed content, validate an odds intake package, import only when `readyForImport=true`, rebuild history, create compressed SQLite backups, and copy immutable raw versions plus current outputs back to Drive.
+
+Activation requires encrypted GitHub Actions secrets for the Drive service account, Drive folder ID, and the two owner-approved odds JSON URLs. See [`docs/full-automation.md`](docs/full-automation.md).
+
 ## Quick start
 
 ```bash
@@ -87,7 +95,7 @@ exports/history/source_health.json
 exports/history/nba_value_lab_odds_export.json
 ```
 
-See [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md), [`docs/manual-import.md`](docs/manual-import.md), [`docs/data-contract.md`](docs/data-contract.md), [`docs/v0.3-history-quality-controls.md`](docs/v0.3-history-quality-controls.md), and [`docs/v0.4-multi-snapshot-history.md`](docs/v0.4-multi-snapshot-history.md).
+See [`docs/full-automation.md`](docs/full-automation.md), [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md), [`docs/manual-import.md`](docs/manual-import.md), [`docs/data-contract.md`](docs/data-contract.md), [`docs/v0.3-history-quality-controls.md`](docs/v0.3-history-quality-controls.md), and [`docs/v0.4-multi-snapshot-history.md`](docs/v0.4-multi-snapshot-history.md).
 
 ## Public repository boundary
 
