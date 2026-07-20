@@ -76,11 +76,31 @@ jobs:
 
       - name: Restore state and SQLite from Google Drive
         if: ${{ env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        shell: bash
         run: |
-          mkdir -p runtime/state data/databases
-          rclone copy hubdrive:07-state runtime/state --ignore-errors --no-traverse
-          rclone copy hubdrive:02-sqlite data/databases \
-            --include "odds_history.sqlite" --ignore-errors --no-traverse
+          set +e
+          mkdir -p runtime/state runtime/reports data/databases
+          : > runtime/reports/drive_restore_diagnostics.txt
+
+          if rclone lsf hubdrive:07-state --max-depth 1 >/dev/null 2>&1; then
+            rclone copy hubdrive:07-state runtime/state --no-traverse \
+              >> runtime/reports/drive_restore_diagnostics.txt 2>&1
+            echo "restore_state_exit=$?" >> runtime/reports/drive_restore_diagnostics.txt
+          else
+            echo "07-state not present yet; first-run restore skipped." \
+              >> runtime/reports/drive_restore_diagnostics.txt
+          fi
+
+          if rclone lsf hubdrive:02-sqlite --max-depth 1 >/dev/null 2>&1; then
+            rclone copy hubdrive:02-sqlite data/databases \
+              --include "odds_history.sqlite" --no-traverse \
+              >> runtime/reports/drive_restore_diagnostics.txt 2>&1
+            echo "restore_sqlite_exit=$?" >> runtime/reports/drive_restore_diagnostics.txt
+          else
+            echo "02-sqlite not present or not readable; first-run restore skipped." \
+              >> runtime/reports/drive_restore_diagnostics.txt
+          fi
+          exit 0
 
       - name: Run source health, optional odds intake, and backup
         run: |
@@ -100,6 +120,33 @@ jobs:
           echo "Google Drive upload skipped: configure GDRIVE_SERVICE_ACCOUNT_JSON and GDRIVE_FOLDER_ID." \
             | tee runtime/reports/drive_upload_skipped.txt
 
+      - name: Copy immutable data and current state to Google Drive
+        if: ${{ always() && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        shell: bash
+        run: |
+          set +e
+          mkdir -p runtime/source_archive runtime/incoming runtime/backups runtime/exports runtime/reports runtime/state data/databases
+          : > runtime/reports/drive_upload_diagnostics.txt
+
+          copy_and_record() {
+            label="$1"
+            shift
+            echo "[$label]" >> runtime/reports/drive_upload_diagnostics.txt
+            rclone "$@" >> runtime/reports/drive_upload_diagnostics.txt 2>&1
+            code=$?
+            echo "exit=$code" >> runtime/reports/drive_upload_diagnostics.txt
+            return 0
+          }
+
+          copy_and_record source_archive copy runtime/source_archive hubdrive:01-raw-snapshots/source_archive --immutable --create-empty-src-dirs
+          copy_and_record odds_snapshots copy runtime/incoming hubdrive:00-incoming/odds_snapshots --immutable --create-empty-src-dirs
+          copy_and_record backups copy runtime/backups hubdrive:05-backups --immutable --create-empty-src-dirs
+          copy_and_record exports copy runtime/exports hubdrive:03-exports --create-empty-src-dirs
+          copy_and_record source_health copy runtime/reports hubdrive:04-source-health --create-empty-src-dirs
+          copy_and_record state copy runtime/state hubdrive:07-state --create-empty-src-dirs
+          copy_and_record sqlite copy data/databases hubdrive:02-sqlite --include "odds_history.sqlite" --create-empty-src-dirs
+          exit 0
+
       - name: Upload safe run evidence to GitHub Actions
         if: always()
         uses: actions/upload-artifact@v4
@@ -111,15 +158,3 @@ jobs:
             runtime/exports/
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Copy immutable data and current state to Google Drive
-        if: ${{ always() && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
-        run: |
-          rclone copy runtime/source_archive hubdrive:01-raw-snapshots/source_archive --immutable --create-empty-src-dirs
-          rclone copy runtime/incoming hubdrive:00-incoming/odds_snapshots --immutable --create-empty-src-dirs
-          rclone copy runtime/backups hubdrive:05-backups --immutable --create-empty-src-dirs
-          rclone copy runtime/exports hubdrive:03-exports --create-empty-src-dirs
-          rclone copy runtime/reports hubdrive:04-source-health --create-empty-src-dirs
-          rclone copy runtime/state hubdrive:07-state --create-empty-src-dirs
-          rclone copy data/databases hubdrive:02-sqlite \
-            --include "odds_history.sqlite" --create-empty-src-dirs
