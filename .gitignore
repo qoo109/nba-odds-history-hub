@@ -30,6 +30,8 @@ tokens.json
 !/data/databases/.gitkeep
 /exports/*
 !/exports/.gitkeep
+/runtime/*
+!/runtime/.gitkeep
 
 # SQLite and generated files
 *.sqlite
