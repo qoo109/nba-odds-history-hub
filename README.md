@@ -1,85 +1,73 @@
 # NBA Odds History Hub
 
-NBA odds ingestion, normalization, timestamped storage, quality reporting, history building, visualization, and research-safe export hub for NBA Value Lab.
+A dedicated, auditable repository for collecting and preserving NBA odds history independently from `qoo109/nba-value-lab`.
 
-## Live pages
+## Current phase
 
-- Dashboard: https://qoo109.github.io/nba-odds-history-hub/
-- Second snapshot intake: https://qoo109.github.io/nba-odds-history-hub/snapshot-intake.html
+The project is activating in two stages:
 
-The public dashboard currently contains one reviewed NBA Futures snapshot observed at `2026-07-20T11:10:00+08:00`: 5 markets, 91 options, 5 matched `matchupId`, and 0 unmatched IDs. It is a historical snapshot viewer, not a live feed.
+1. **Phase 1 — daily source health and Google Drive backup**
+   - runs daily at 09:11 Asia/Taipei
+   - monitors approved free/public sources
+   - saves new or changed files only
+   - records ETag, Last-Modified, SHA-256, source health, and duplicate skips
+   - backs up reports, state, raw archives, exports, backups, and SQLite to Google Drive
+   - does not ingest live odds
+2. **Phase 2 — timestamped odds capture**
+   - remains intentionally disabled until an NBA monitoring window is needed
+   - requires owner-approved `matchups` and `straight` JSON URLs
+   - runs only from an explicit manual dispatch until an hourly schedule is separately reviewed
 
-## Current status
+The automation belongs only to this repository. It does **not** connect to or modify `qoo109/nba-value-lab`.
 
-**V0.4 — multi-snapshot history builder and second-snapshot intake gate ready**
+## Implemented
 
-Implemented:
-
-- Manual `matchups` + `straight` JSON importer
-- Separate `observed_at`, `ingested_at`, scheduled time, and cutoff time
-- American-to-decimal conversion and raw implied probability
-- SQLite history storage
-- Exact timestamped deduplication
-- Optional `changes-only` retention for genuine line/price changes
-- Strictly-prior change comparison for out-of-order backfills
-- Formal matched/unmatched import quality report
-- Source and bookmaker registries
-- Unmapped source-event placeholders and explicit canonical mappings
-- Quote-history grouping by stable identity
-- Movement readiness only after two distinct `observed_at` values
-- Snapshot coverage and source-health summaries
-- Research-safe NBA Value Lab odds export with all market gates closed by default
-- Dashboard history-readiness panel and dormant movement chart renderer
-- Second-snapshot intake package validator with SHA-256 and sensitive-key checks
-- GitHub issue form and public intake page
-- Automated tests and GitHub Actions
-
-## Full automation candidate
-
-The `automation/full-download-drive-v1` branch adds an hourly, deduplicated pipeline that belongs only to this repository. It does **not** connect to or modify `qoo109/nba-value-lab`.
-
-It can restore state from Google Drive, check approved free/public sources, download only new or changed content, validate an odds intake package, import only when `readyForImport=true`, rebuild history, create compressed SQLite backups, and copy immutable raw versions plus current outputs back to Drive.
-
-Activation requires encrypted GitHub Actions secrets for the Drive service account, Drive folder ID, and the two owner-approved odds JSON URLs. See [`docs/full-automation.md`](docs/full-automation.md).
+- `matchups.json` + `straight.json` intake
+- `matchupId` and `participantId` normalization
+- American-to-decimal price conversion
+- raw implied probability calculation
+- separate `observed_at` and `ingested_at`
+- SQLite historical storage
+- exact snapshot deduplication
+- changes-only retention
+- CSV and JSON exports
+- source health tracking
+- bookmaker registry
+- grouped history builder
+- automated tests and GitHub Actions
+- phased daily source-health and optional odds-capture workflow
+- Google Drive restore and backup
 
 ## Quick start
 
 ```bash
-git clone https://github.com/qoo109/nba-odds-history-hub.git
-cd nba-odds-history-hub
-python3 -m venv .venv
-source .venv/bin/activate
 python -m pip install -e ".[dev]"
+pytest -q
 ```
 
-Validate a candidate second snapshot before import:
+Validate a package:
 
 ```bash
-odds-hub-validate-intake \
-  --package-dir /path/to/second-snapshot
+odds-hub-validate-intake --package-dir data/incoming/example
 ```
 
-The directory must contain:
-
-```text
-matchups.json
-straight.json
-metadata.json
-```
-
-Import only after `intake_report.json` shows `readyForImport: true`:
+Import an approved package:
 
 ```bash
 odds-hub-import \
-  --matchups /path/to/second-snapshot/matchups.json \
-  --straight /path/to/second-snapshot/straight.json \
-  --observed-at "2026-07-21T11:10:00+08:00" \
-  --source pinnacle_manual \
-  --bookmaker pinnacle \
-  --dedupe-mode changes-only
+  --matchups data/incoming/example/matchups.json \
+  --straight data/incoming/example/straight.json \
+  --observed-at 2026-07-20T12:00:00Z \
+  --database data/databases/odds_history.sqlite \
+  --source manual_json \
+  --source-name "Manual JSON" \
+  --bookmaker example_book \
+  --bookmaker-name "Example Book" \
+  --dedupe-mode changes-only \
+  --export-dir exports
 ```
 
-Build grouped histories and research exports:
+Build grouped history:
 
 ```bash
 odds-hub-build-history \
@@ -87,10 +75,9 @@ odds-hub-build-history \
   --output-dir exports/history
 ```
 
-Generated history outputs:
+Expected outputs include:
 
 ```text
-exports/history/odds_history_grouped.json
 exports/history/source_health.json
 exports/history/nba_value_lab_odds_export.json
 ```
@@ -99,14 +86,6 @@ See [`docs/full-automation.md`](docs/full-automation.md), [`docs/second-snapshot
 
 ## Public repository boundary
 
-The repository contains code, schemas, documentation, tests, and small reviewed snapshots. Large or continuously changing databases stay outside Git. Never commit cookies, authorization headers, session tokens, credentials, HAR files, or private account data. Do not bypass access controls, CAPTCHAs, authentication, or rate limits.
+Large or continuously changing raw data, complete SQLite databases, private credentials, cookies, authorization headers, HAR files, and account exports do not belong in the public repository.
 
-A single snapshot cannot be called opening, closing, or line movement history. Missing rows are never interpreted as unchanged prices.
-
-## Roadmap
-
-- **V0.1** Repository structure and data contract — implemented
-- **V0.2** Manual JSON importer — implemented
-- **V0.3** Real snapshot validation, dashboard, QA, registries, and history-quality controls — implemented
-- **V0.4** History builder and second-snapshot intake gate — implemented; awaiting the second real snapshot
-- **V0.5** Canonical NBA Value Lab join validation and point-in-time export hardening — blocked until real multi-snapshot data exists
+The repository keeps code, schema, manifests, QA reports, documentation, tests, and small privacy-safe samples. Large data and current backups belong in Google Drive or short-lived GitHub Actions Artifacts.
