@@ -1,16 +1,21 @@
-name: Full odds download and Drive backup
+name: Daily source health and Drive backup
 
 on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Validate without importing a configured odds snapshot
+        description: Validate the pipeline without importing an odds snapshot
+        required: false
+        default: true
+        type: boolean
+      enable_odds_capture:
+        description: Run owner-configured odds intake (requires both odds URL secrets)
         required: false
         default: false
         type: boolean
   schedule:
-    # Hourly snapshots are needed for genuine timestamped history.
-    - cron: "11 * * * *"
+    # 09:11 Asia/Taipei. Scheduled runs are source-health only.
+    - cron: "11 1 * * *"
 
 permissions:
   contents: read
@@ -24,8 +29,10 @@ env:
   TZ: Asia/Taipei
   GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
   GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
-  ODDS_MATCHUPS_URL: ${{ secrets.ODDS_MATCHUPS_URL }}
-  ODDS_STRAIGHT_URL: ${{ secrets.ODDS_STRAIGHT_URL }}
+  # Odds URLs are exposed only for an explicit manual run. Daily scheduled runs
+  # remain source-health/backup jobs until odds capture is intentionally enabled.
+  ODDS_MATCHUPS_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_odds_capture && secrets.ODDS_MATCHUPS_URL || '' }}
+  ODDS_STRAIGHT_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_odds_capture && secrets.ODDS_STRAIGHT_URL || '' }}
   ODDS_SOURCE_ID: ${{ vars.ODDS_SOURCE_ID || 'configured_http_source' }}
   ODDS_SOURCE_NAME: ${{ vars.ODDS_SOURCE_NAME || 'Configured HTTP odds source' }}
   ODDS_BOOKMAKER_ID: ${{ vars.ODDS_BOOKMAKER_ID || 'configured_bookmaker' }}
@@ -59,7 +66,7 @@ jobs:
           printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/gdrive-service-account.json"
           chmod 600 "$RUNNER_TEMP/gdrive-service-account.json"
           rclone config create hubdrive drive \
-            scope drive.file \
+            scope drive \
             service_account_file "$RUNNER_TEMP/gdrive-service-account.json" \
             root_folder_id "$GDRIVE_FOLDER_ID" \
             --non-interactive
@@ -68,11 +75,11 @@ jobs:
         if: ${{ env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
         run: |
           mkdir -p runtime/state data/databases
-          rclone copy hubdrive:state runtime/state --ignore-errors --no-traverse
-          rclone copy hubdrive:sqlite data/databases \
+          rclone copy hubdrive:07-state runtime/state --ignore-errors --no-traverse
+          rclone copy hubdrive:02-sqlite data/databases \
             --include "odds_history.sqlite" --ignore-errors --no-traverse
 
-      - name: Run deduplicated download, intake, history, and backup
+      - name: Run source health, optional odds intake, and backup
         run: |
           python scripts/automation/full_pipeline.py \
             --config config/automation-sources.json \
@@ -105,11 +112,11 @@ jobs:
       - name: Copy immutable data and current state to Google Drive
         if: ${{ always() && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
         run: |
-          rclone copy runtime/source_archive hubdrive:raw/source_archive --immutable --create-empty-src-dirs
-          rclone copy runtime/incoming hubdrive:raw/odds_snapshots --immutable --create-empty-src-dirs
-          rclone copy runtime/backups hubdrive:backups --immutable --create-empty-src-dirs
-          rclone copy runtime/exports hubdrive:exports --create-empty-src-dirs
-          rclone copy runtime/reports hubdrive:reports --create-empty-src-dirs
-          rclone copy runtime/state hubdrive:state --create-empty-src-dirs
-          rclone copy data/databases hubdrive:sqlite \
+          rclone copy runtime/source_archive hubdrive:01-raw-snapshots/source_archive --immutable --create-empty-src-dirs
+          rclone copy runtime/incoming hubdrive:00-incoming/odds_snapshots --immutable --create-empty-src-dirs
+          rclone copy runtime/backups hubdrive:05-backups --immutable --create-empty-src-dirs
+          rclone copy runtime/exports hubdrive:03-exports --create-empty-src-dirs
+          rclone copy runtime/reports hubdrive:04-source-health --create-empty-src-dirs
+          rclone copy runtime/state hubdrive:07-state --create-empty-src-dirs
+          rclone copy data/databases hubdrive:02-sqlite \
             --include "odds_history.sqlite" --create-empty-src-dirs
