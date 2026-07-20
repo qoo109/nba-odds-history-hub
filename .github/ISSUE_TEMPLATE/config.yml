@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Second snapshot intake guide
+    url: https://qoo109.github.io/nba-odds-history-hub/snapshot-intake.html
+    about: Review the required files, validation command, and safety boundary before submitting.
