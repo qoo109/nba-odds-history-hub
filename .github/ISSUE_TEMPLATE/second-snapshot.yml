@@ -1,0 +1,60 @@
+name: Submit second odds snapshot
+description: Provide the next owner-supplied matchups.json and straight.json pair for V0.4 activation.
+title: "[Snapshot intake] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form only for an owner-supplied NBA odds snapshot. Do not attach cookies, authorization headers, session tokens, credentials, HAR files, or account data.
+
+  - type: input
+    id: observed_at
+    attributes:
+      label: True observed_at
+      description: Enter the exact time the prices were visible, including timezone offset.
+      placeholder: 2026-07-21T11:10:00+08:00
+    validations:
+      required: true
+
+  - type: input
+    id: source_id
+    attributes:
+      label: Source ID
+      placeholder: pinnacle_manual
+    validations:
+      required: true
+
+  - type: input
+    id: bookmaker_id
+    attributes:
+      label: Bookmaker ID
+      placeholder: pinnacle
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Attach the two JSON files
+      description: Drag matchups.json and straight.json into this box, or provide private transfer references. Do not paste credentials or request headers.
+      placeholder: Attach matchups.json and straight.json here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Record market scope, capture method, or anything unusual about this snapshot.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Safety and provenance confirmation
+      options:
+        - label: The files contain response bodies only, with no cookies, authorization headers, tokens, passwords, session data, or HAR content.
+          required: true
+        - label: observed_at is the real observation time, not cutoffAt, scheduled tipoff, download time, or ingestion time.
+          required: true
+        - label: This snapshot must pass the generated intake and import-quality reports before acceptance.
+          required: true
