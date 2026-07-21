@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qoo109.github.io/nba-odds-history-hub/schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json",
+  "title": "Offseason Aggregate Metadata Readiness v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "asOf", "fixtureMode", "currentMode", "formalState", "validation", "summary", "teamRegistry", "marketTaxonomy", "sourceMetadata", "providerMetadata", "scheduleFixture", "collectionState", "researchReadiness", "privacyBoundary"],
+  "properties": {
+    "schemaVersion": {"const": "offseason-aggregate-metadata-readiness-v1"},
+    "asOf": {"type": "string", "format": "date"},
+    "fixtureMode": {"const": true},
+    "currentMode": {"const": "offseason_sleep"},
+    "formalState": {"const": "OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_V1_READY"},
+    "validation": {"$ref": "#/$defs/validation"},
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["teams", "marketClasses", "sources", "providers", "metadataMissingFields", "automationApprovals", "activeCadenceTemplates", "fixtureScheduleGames"],
+      "properties": {
+        "teams": {"type": "integer", "minimum": 0},
+        "marketClasses": {"type": "integer", "minimum": 0},
+        "sources": {"type": "integer", "minimum": 0},
+        "providers": {"type": "integer", "minimum": 0},
+        "metadataMissingFields": {"type": "integer", "minimum": 0},
+        "automationApprovals": {"type": "integer", "minimum": 0},
+        "activeCadenceTemplates": {"type": "integer", "minimum": 0},
+        "fixtureScheduleGames": {"type": "integer", "minimum": 0}
+      }
+    },
+    "teamRegistry": {"$ref": "#/$defs/objectRecord"},
+    "marketTaxonomy": {"$ref": "#/$defs/objectRecord"},
+    "sourceMetadata": {"$ref": "#/$defs/objectRecord"},
+    "providerMetadata": {"$ref": "#/$defs/objectRecord"},
+    "scheduleFixture": {"$ref": "#/$defs/objectRecord"},
+    "collectionState": {
+      "type": "object",
+      "required": ["liveCaptureActive", "scheduledCaptureActive", "phase2ApprovalGranted", "phase2ExecutionEnabled", "phase2ExecutionCount", "phase2MaximumExecutionCount", "productionScheduleImported", "externalScheduleRead"],
+      "properties": {
+        "liveCaptureActive": {"const": false},
+        "scheduledCaptureActive": {"const": false},
+        "phase2ApprovalGranted": {"const": false},
+        "phase2ExecutionEnabled": {"const": false},
+        "phase2ExecutionCount": {"const": 0},
+        "phase2MaximumExecutionCount": {"type": "integer", "minimum": 1},
+        "productionScheduleImported": {"const": false},
+        "externalScheduleRead": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "researchReadiness": {
+      "type": "object",
+      "required": ["referenceDataReady", "liveCaptureReady", "historicalMovementReady", "openingClosingReady", "pointInTimeJoinReady"],
+      "properties": {
+        "referenceDataReady": {"type": "boolean"},
+        "liveCaptureReady": {"const": false},
+        "historicalMovementReady": {"const": false},
+        "openingClosingReady": {"const": false},
+        "pointInTimeJoinReady": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "privacyBoundary": {
+      "type": "object",
+      "required": ["aggregateOnly", "rowLevelRecordsIncluded", "sourceUrlsIncluded", "sourceNamesIncluded", "providerNamesIncluded", "credentialsIncluded", "cookiesOrSessionsIncluded", "authorizationHeadersIncluded", "networkCallsMade", "externalFilesRead", "rawRowsEmitted", "crossRepositoryWrite"],
+      "properties": {
+        "aggregateOnly": {"const": true},
+        "rowLevelRecordsIncluded": {"const": false},
+        "sourceUrlsIncluded": {"const": false},
+        "sourceNamesIncluded": {"const": false},
+        "providerNamesIncluded": {"const": false},
+        "credentialsIncluded": {"const": false},
+        "cookiesOrSessionsIncluded": {"const": false},
+        "authorizationHeadersIncluded": {"const": false},
+        "networkCallsMade": {"const": false},
+        "externalFilesRead": {"const": false},
+        "rawRowsEmitted": {"const": 0},
+        "crossRepositoryWrite": {"const": false}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checksPassed", "checksTotal", "checksFailed", "failedChecks"],
+      "properties": {
+        "checksPassed": {"type": "integer", "minimum": 0},
+        "checksTotal": {"type": "integer", "minimum": 0},
+        "checksFailed": {"type": "integer", "minimum": 0},
+        "failedChecks": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "objectRecord": {"type": "object", "minProperties": 1}
+  }
+}
