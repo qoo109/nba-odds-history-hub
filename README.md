@@ -4,24 +4,28 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.7 — Offseason reference foundation ready; live collection remains asleep.**
+**V0.8 — Offseason schedule and event-mapping contracts ready; collection remains asleep.**
 
 Current operating layers:
 
 1. **Daily source health**
    - runs daily at 09:11 Asia/Taipei
    - monitors approved free/public sources
-   - records ETag, Last-Modified, file size, SHA-256 and duplicate skips
+   - records ETag, Last-Modified, file size, SHA-256, and duplicate skips
    - uploads safe 14-day GitHub Actions Artifacts
    - Google Drive automation is disabled by default; backup is manual
 2. **Static offseason foundation**
    - canonical 30-team registry
    - normalized game/futures taxonomy
-   - exact event-identity contract
    - inactive observation cadence templates
    - fail-closed validation and aggregate evidence
-3. **Phase 2 collection**
-   - remains intentionally disabled until a monitoring window is needed
+3. **Schedule and event mapping**
+   - required source-event and timezone-aware schedule fields
+   - exact scheduled-date + home + away candidate key
+   - explicit verified, candidate, quarantine, and rejection states
+   - no fuzzy or score-assisted identity repair
+4. **Phase 2 collection**
+   - remains disabled until a monitoring window is needed
    - requires separate explicit approval and reviewed configuration
    - begins with a manual first run; no recurring schedule is active
 
@@ -47,26 +51,30 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - canonical NBA team registry v1
 - market taxonomy v1
 - offseason capture-readiness policy v1
-- exact event-mapping safeguards
+- schedule-import contract v1
+- deterministic schedule-mapping fixtures v1
 
-## Reference foundation
+## Reference assets
 
 ```text
 config/nba-team-registry-v1.json
 config/market-taxonomy-v1.json
 config/offseason-capture-readiness-v1.json
+config/schedule-import-contract-v1.json
 data/offseason-reference-foundation-current-status-v1.json
+data/offseason-schedule-mapping-current-status-v1.json
+data/fixtures/offseason-schedule-mapping-v1.json
 ```
 
-Validation result:
+Validation results:
 
 ```text
 OFFSEASON_REFERENCE_FOUNDATION_V1_READY
 34 / 34 checks passed
-30 teams
-11 market classes
-5 dormant cadence templates
-0 active cadence templates
+
+OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY
+21 / 21 checks passed
+5 / 5 fixture cases passed
 ```
 
 ## Quick start
@@ -82,6 +90,14 @@ Validate the offseason foundation:
 python scripts/validate_offseason_reference_foundation_v1.py \
   --self-test \
   --output /tmp/offseason-reference-foundation-v1.json
+```
+
+Validate schedule mapping:
+
+```bash
+python scripts/validate_offseason_schedule_mapping_v1.py \
+  --self-test \
+  --output /tmp/offseason-schedule-mapping-v1.json
 ```
 
 Validate an incoming package:
@@ -114,17 +130,11 @@ odds-hub-build-history \
   --output-dir exports/history
 ```
 
-Expected outputs include:
-
-```text
-exports/history/source_health.json
-exports/history/nba_value_lab_odds_export.json
-```
-
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
+- [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
 - [`docs/full-automation.md`](docs/full-automation.md)
 - [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md)
 - [`docs/manual-import.md`](docs/manual-import.md)
@@ -134,6 +144,6 @@ exports/history/nba_value_lab_odds_export.json
 
 ## Public repository boundary
 
-Large or continuously changing raw data, complete SQLite databases, private credentials, cookies, authorization headers, HAR files and account exports do not belong in the public repository.
+Large or continuously changing raw data, complete SQLite databases, private credentials, cookies, authorization headers, HAR files, and account exports do not belong in the public repository.
 
-The repository keeps code, schemas, manifests, QA reports, documentation, tests and small privacy-safe samples. Large data and current backups belong in owner-controlled storage or short-lived GitHub Actions Artifacts.
+The repository keeps code, schemas, manifests, QA reports, documentation, tests, and small privacy-safe samples. Large data and current backups belong in owner-controlled storage or short-lived GitHub Actions Artifacts.

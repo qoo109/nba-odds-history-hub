@@ -4,19 +4,18 @@ Updated: 2026-07-21
 
 ## Current phase
 
-**V0.7 — Offseason reference foundation ready; live collection remains asleep**
+**V0.8 — Offseason schedule and event-mapping contracts ready; collection remains asleep**
 
-This repository remains fully separate from `qoo109/nba-value-lab`.
+This repository remains separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest reference merge: a4164ddd7a50eb054036f4cb0966ec84656b4591
+latest schedule-mapping merge: 4655e51579b4607e6f71096a062f073753359620
 current mode: offseason_sleep
 daily source-health schedule: 09:11 Asia/Taipei
-scheduled live collection: false
+scheduled collection: false
 manual Phase 2 approval granted: false
-Google Drive automatic backup default: false
 backup mode: GitHub Actions Artifact + manual Drive upload
 real snapshots: 1
 movement-ready quote identities: 0
@@ -25,30 +24,27 @@ movement-ready quote identities: 0
 ## Completed
 
 - V0.2 importer, SQLite storage, exports, tests, and GitHub Actions
-- V0.3 first real snapshot validation, public dashboard, source/bookmaker registries, QA report, and changes-only retention
-- V0.4 grouped multi-snapshot history builder and second-snapshot intake gate
-- V0.5 daily approved free/public source-health checks and 14-day safe Artifact output
-- V0.6 disabled one-time Phase 2 request packet and approval gate
-- V0.7 canonical NBA team registry, market taxonomy, exact event-identity policy, and dormant cadence templates
+- V0.3 first snapshot validation, dashboard, registries, QA report, and changes-only retention
+- V0.4 grouped history builder and second-snapshot intake gate
+- V0.5 daily public-source health checks and safe Artifact output
+- V0.6 disabled one-time Phase 2 request packet
+- V0.7 canonical team registry, market taxonomy, event-identity policy, and dormant cadence templates
+- V0.8 schedule-import contract and deterministic synthetic event-mapping fixtures
 
 ## Offseason reference foundation
 
-Formal state:
-
 ```text
-OFFSEASON_REFERENCE_FOUNDATION_V1_READY
-```
-
-Evidence:
-
-```text
+formal state: OFFSEASON_REFERENCE_FOUNDATION_V1_READY
 workflow run: 29799499405
 artifact id: 8483214949
 artifact digest: sha256:b169859615391932b09c344d0b288c776106d71c91016a22222982032ce6bc70
 checks: 34 / 34
+teams: 30
+market classes: 11
+active cadence templates: 0
 ```
 
-Reference assets:
+Assets:
 
 ```text
 config/nba-team-registry-v1.json
@@ -57,32 +53,44 @@ config/offseason-capture-readiness-v1.json
 data/offseason-reference-foundation-current-status-v1.json
 ```
 
-Validated summary:
+## Offseason schedule mapping
 
 ```text
-teams: 30
-East: 15
-West: 15
-divisions: 6
-market classes: 11
-dormant cadence templates: 5
-active cadence templates: 0
+formal state: OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY
+workflow run: 29800088012
+artifact id: 8483412043
+artifact digest: sha256:bb35c2c983d0241fa27cc050110b1358b561e14214015f47aa2fb45082a88b04
+checks: 21 / 21
+fixture cases: 5
+verified fixture-only: 1
+candidate unverified: 1
+quarantined: 2
+rejected: 1
 ```
 
-## Identity and taxonomy rules
+Assets:
 
-- All 30 active NBA teams have canonical abbreviations, conferences and divisions.
-- Current source aliases are unique.
-- Historical relocation aliases require season validation.
-- Unknown team and market aliases are quarantined.
-- Automatic fuzzy matching is disabled.
-- Game and futures records are separated.
-- Source market keys and source period codes remain preserved.
-- Unverified source events remain `unmapped`.
-- Exact event candidate key is scheduled date + home team + away team.
-- Scores cannot repair event identity.
+```text
+config/schedule-import-contract-v1.json
+data/fixtures/offseason-schedule-mapping-v1.json
+data/offseason-schedule-mapping-current-status-v1.json
+scripts/validate_offseason_schedule_mapping_v1.py
+docs/offseason-schedule-mapping-v1.md
+```
 
-## Current real-data validation
+## Identity rules
+
+- Current aliases may create an unverified candidate only.
+- Historical aliases require season validation.
+- Unknown aliases are quarantined.
+- Identical home and away teams are rejected.
+- Source event ID and timezone-aware scheduled time are mandatory.
+- Canonical event ID may remain null until explicitly verified.
+- Exact candidate key is scheduled date + home team + away team.
+- Fuzzy, score-assisted, and many-to-many mapping are disabled.
+- Schedule changes create a new version and preserve the prior value.
+
+## Current data validation
 
 ```text
 real snapshots: 1
@@ -91,6 +99,7 @@ quote identities: 91
 movement-ready quote identities: 0
 canonical mapping coverage: 0%
 multi-observation history ready: false
+production schedule imported: false
 ```
 
 ## Phase 2 request
@@ -104,31 +113,20 @@ execution count: 0
 maximum execution count: 1
 ```
 
-The request remains valid but intentionally inactive during the offseason. It does not need approval now.
+The request remains inactive during the offseason.
 
 ## Next unique mainline
 
 ```text
-OFFSEASON_DATA_QUALITY_AND_MAPPING_FIXTURES
+OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES
 ```
 
-The next safe work is non-live infrastructure: canonical event-mapping fixtures, schedule import contracts, source/bookmaker metadata QA, database migrations, and dashboard readiness tests.
-
-## Required activation gates later
-
-1. Owner-reviewed lawful source.
-2. Encrypted configuration only.
-3. True timezone-aware observation time.
-4. Scheduled event time and exact team identities.
-5. Intake report accepted before import.
-6. Changes-only retention.
-7. Manual first-run review.
-8. No automatic classification from a single observation.
+The next safe work is additive database mapping tables, metadata QA, mapping-status exports, and dashboard readiness fixtures.
 
 ## Safety boundary
 
-- No login/session credentials or private browser exports in the repository.
+- No private credentials or browser exports in the repository.
 - No access-control or website-policy bypass.
-- No raw continuously changing archives committed publicly.
+- No large changing archives committed publicly.
 - No automatic write to `qoo109/nba-value-lab`.
-- No scheduled live collection during offseason sleep mode.
+- No scheduled collection during offseason sleep mode.
