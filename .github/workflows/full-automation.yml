@@ -1,4 +1,4 @@
-name: Daily source health and Drive backup
+name: Daily source health and Artifact backup
 
 on:
   workflow_dispatch:
@@ -27,10 +27,15 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   TZ: Asia/Taipei
+  # Google Drive automation is intentionally disabled by default. The owner
+  # downloads GitHub Artifacts and uploads archives manually. Set the Actions
+  # variable ENABLE_GDRIVE_BACKUP=true only after a writable Drive target is
+  # intentionally configured again.
+  ENABLE_GDRIVE_BACKUP: ${{ vars.ENABLE_GDRIVE_BACKUP || 'false' }}
   GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
   GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
   # Odds URLs are exposed only for an explicit manual run. Daily scheduled runs
-  # remain source-health/backup jobs until odds capture is intentionally enabled.
+  # remain source-health/Artifact jobs until odds capture is intentionally enabled.
   ODDS_MATCHUPS_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_odds_capture && secrets.ODDS_MATCHUPS_URL || '' }}
   ODDS_STRAIGHT_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_odds_capture && secrets.ODDS_STRAIGHT_URL || '' }}
   ODDS_SOURCE_ID: ${{ vars.ODDS_SOURCE_ID || 'configured_http_source' }}
@@ -60,7 +65,7 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Install and configure rclone
-        if: ${{ env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        if: ${{ env.ENABLE_GDRIVE_BACKUP == 'true' && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
         run: |
           curl -fsSL https://rclone.org/install.sh | sudo bash
           printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/gdrive-service-account.json"
@@ -72,7 +77,7 @@ jobs:
             --non-interactive
 
       - name: Restore state and SQLite from Google Drive
-        if: ${{ env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        if: ${{ env.ENABLE_GDRIVE_BACKUP == 'true' && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
         continue-on-error: true
         shell: bash
         run: |
@@ -117,15 +122,21 @@ jobs:
         if: always()
         run: pytest -q
 
-      - name: Record Drive-not-configured status
-        if: ${{ always() && (env.GDRIVE_SERVICE_ACCOUNT_JSON == '' || env.GDRIVE_FOLDER_ID == '') }}
+      - name: Record manual Google Drive backup mode
+        if: ${{ always() && (env.ENABLE_GDRIVE_BACKUP != 'true' || env.GDRIVE_SERVICE_ACCOUNT_JSON == '' || env.GDRIVE_FOLDER_ID == '') }}
+        shell: bash
         run: |
           mkdir -p runtime/reports
-          echo "Google Drive upload skipped: configure GDRIVE_SERVICE_ACCOUNT_JSON and GDRIVE_FOLDER_ID." \
-            | tee runtime/reports/drive_upload_skipped.txt
+          if [ "$ENABLE_GDRIVE_BACKUP" != "true" ]; then
+            echo "Google Drive automation disabled: download the GitHub Actions Artifact and upload files manually." \
+              | tee runtime/reports/drive_manual_mode.txt
+          else
+            echo "Google Drive upload skipped: configure GDRIVE_SERVICE_ACCOUNT_JSON and GDRIVE_FOLDER_ID." \
+              | tee runtime/reports/drive_upload_skipped.txt
+          fi
 
       - name: Copy immutable data and current state to Google Drive
-        if: ${{ always() && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        if: ${{ always() && env.ENABLE_GDRIVE_BACKUP == 'true' && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
         shell: bash
         run: |
           set +e
@@ -155,7 +166,7 @@ jobs:
           exit "$failed"
 
       - name: Verify Google Drive write and capture remote metadata
-        if: ${{ always() && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        if: ${{ always() && env.ENABLE_GDRIVE_BACKUP == 'true' && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
         shell: bash
         run: |
           set -euo pipefail
