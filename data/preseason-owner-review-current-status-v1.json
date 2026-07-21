@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "preseason-owner-review-packet-report-v1",
+  "asOf": "2026-07-21",
+  "formalState": "OFFSEASON_PRESEASON_OWNER_REVIEW_PACKET_AND_DISABLED_IMPORT_COMMAND_PLAN_V1_READY",
+  "checks": {
+    "packet_schema": true,
+    "packet_state_disabled": true,
+    "source_request_match": true,
+    "preflight_ready": true,
+    "preflight_checks_complete": true,
+    "file_identity_exact": true,
+    "rollback_executed": true,
+    "rollback_zero_rows": true,
+    "rollback_preview_removed": true,
+    "artifact_identity_exact": true,
+    "decision_not_requested": true,
+    "decision_not_recorded": true,
+    "approval_false": true,
+    "separate_request_required": true,
+    "execution_disabled": true,
+    "maximum_execution_zero": true,
+    "plan_schema": true,
+    "plan_state_disabled": true,
+    "plan_non_executable": true,
+    "no_shell_command": true,
+    "no_command_fields": true,
+    "placeholders_present": true,
+    "six_control_steps": true,
+    "implementation_module_absent": true,
+    "production_import_false": true,
+    "external_and_network_false": true,
+    "scheduled_collection_false": true,
+    "canonical_creation_false": true,
+    "cross_repository_false": true,
+    "aggregate_only": true,
+    "synthetic_fixture_only": true
+  },
+  "checksPassed": 31,
+  "checksTotal": 31,
+  "failedChecks": [],
+  "packet": {
+    "packetId": "SCHEDULE-OWNER-REVIEW-2026-07-21-001",
+    "state": "review_ready_disabled",
+    "sourcePreflightRequestId": "SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001",
+    "decisionRequested": false,
+    "decisionRecorded": false,
+    "approvalGranted": false
+  },
+  "evidence": {
+    "targetFile": {
+      "path": "data/fixtures/preseason-dry-run-v1.json",
+      "filename": "preseason-dry-run-v1.json",
+      "bytes": 2204,
+      "sha256": "1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512",
+      "schemaVersion": "preseason-dry-run-fixture-v1",
+      "seasonId": "2026-27"
+    },
+    "preflightChecks": {
+      "passed": 19,
+      "total": 19
+    },
+    "artifact": {
+      "id": 8500959742,
+      "digest": "sha256:cd398c5a3bba096b1f5ba392bb47c8afff766be66a2d955a267d0360bfd4d654"
+    },
+    "rollbackExecuted": true,
+    "postRollbackTotalRows": 0
+  },
+  "commandPlan": {
+    "planId": "SCHEDULE-IMPORT-COMMAND-PLAN-2026-07-21-001",
+    "state": "disabled_non_executable",
+    "representation": "ordered_control_steps",
+    "executable": false,
+    "shellCommandEmitted": false,
+    "implementationModulePresent": false,
+    "controlStepCount": 6,
+    "requiredPlaceholderCount": 5
+  },
+  "boundary": {
+    "fixtureOnly": true,
+    "externalFilesRead": false,
+    "networkCallsMade": false,
+    "productionDatabaseTouched": false,
+    "productionScheduleImported": false,
+    "scheduledCollection": false,
+    "canonicalEventIdsCreated": 0,
+    "crossRepositoryWrite": false,
+    "rowLevelRecordsEmitted": false,
+    "executionCount": 0
+  }
+}
