@@ -1,225 +1,179 @@
 # NBA Odds History Hub
 
-A dedicated, auditable repository for collecting and preserving NBA market history independently from `qoo109/nba-value-lab`.
+A dedicated, auditable repository for preserving NBA market history independently from `qoo109/nba-value-lab`.
 
 ## Current phase
 
-**V0.17 — Preseason schedule dry-run gate ready; collection remains asleep.**
+**V0.18 — Three-stage manual schedule import preflight and rollback rehearsal ready; collection remains asleep.**
 
-Current operating layers:
+The repository currently provides:
 
-1. **Daily source health**
-   - runs daily at 09:11 Asia/Taipei
-   - monitors approved free/public sources
-   - uploads short-lived GitHub Actions Artifacts
-2. **Static offseason foundation**
-   - canonical 30-team registry
-   - normalized game/futures taxonomy
-   - inactive observation cadence templates
-3. **Schedule and event mapping**
-   - timezone-aware schedule fields
-   - exact scheduled-date + home + away candidate key
-   - verified, candidate, quarantine and rejection states
-   - no fuzzy or score-assisted identity repair
-4. **Additive mapping database**
-   - schedule-version history
-   - audited mapping decisions
-   - current-state and aggregate mapping views
-5. **Explicit metadata and fixture output gate**
-   - complete source and provider metadata fields
-   - fixture-only schedule normalization
-   - additive candidate persistence
-6. **Aggregate readiness export**
-   - deterministic repository-only JSON builder
-   - aggregate counts and readiness booleans
-7. **Public release governance**
-   - versioned release manifest
-   - static release index and contract drift report
-   - Draft 2020-12 JSON Schema declarations
-   - deterministic SHA-256 integrity manifest
-8. **Preseason dry run**
-   - season configuration and readiness contract
-   - two synthetic schedule observations
-   - mapping audit and schedule-version persistence
-   - schedule revision and idempotent replay checks
-   - final state remains awaiting owner approval
-9. **Phase 2 collection**
-   - remains disabled until a monitoring window is needed
-   - requires a separate explicit decision
-   - no recurring collection schedule is active
+1. source-health monitoring for approved free/public sources;
+2. canonical NBA team and market reference data;
+3. schedule adapter, mapping and versioned SQLite contracts;
+4. aggregate readiness exports and public governance checks;
+5. synthetic preseason schedule dry runs;
+6. a disabled three-stage manual schedule import preflight;
+7. Phase 2 collection, which remains inactive pending a separate explicit decision.
 
-The automation belongs only to this repository. It does **not** connect to or modify `qoo109/nba-value-lab`.
+Nothing in this repository automatically connects to or modifies `qoo109/nba-value-lab`.
 
-## Implemented
+## V0.18: three completed preflight stages
 
-- `matchups.json` + `straight.json` intake
-- American-to-decimal conversion and implied-probability calculation
-- separate `observed_at` and `ingested_at`
-- SQLite historical storage
-- exact snapshot deduplication and changes-only retention
-- source-health tracking and registries
-- grouped history builder
-- canonical NBA team registry v1
-- market taxonomy v1
-- schedule-import contract and mapping fixtures v1
-- schedule-version and mapping-audit database layer v1
-- explicit source and provider metadata
-- fixture-only schedule output gate v2
-- aggregate metadata/readiness export v1
-- aggregate readiness dashboard v1
-- public readiness release manifest v1
-- public contract drift report v1
-- static release index
-- public JSON Schema declarations and integrity manifest
-- preseason schedule dry-run gate v1
-- automated tests and GitHub Actions
+### 1. Exact identity and schema
 
-## Public status pages
-
-- [`readiness.html`](readiness.html) — aggregate offseason readiness
-- [`release-index.html`](release-index.html) — public contract versions and drift status
-
-## Preseason dry-run assets
+The fixture is locked by:
 
 ```text
-config/preseason-readiness-v1.json
-config/season-configuration-v1.json
-data/fixtures/preseason-dry-run-v1.json
-data/preseason-dry-run-current-status-v1.json
-src/nba_odds_history_hub/preseason_dry_run.py
-scripts/validate_preseason_dry_run_v1.py
+path: data/fixtures/preseason-dry-run-v1.json
+filename: preseason-dry-run-v1.json
+bytes: 2204
+sha256: 1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512
+schema: preseason-dry-run-fixture-v1
+season: 2026-27
 ```
 
-Current dry-run result:
+A mismatch in path, filename, size, checksum, schema or season fails closed.
+
+### 2. Aggregate preview
 
 ```text
-formal state: OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES_V1_READY
-checks: 15 / 15
 observations: 2
 accepted rows: 5
 excluded rows: 2
+unique accepted events: 3
+unknown aliases: 1
+same-team rows: 1
+row-level excluded records emitted: false
+```
+
+### 3. Transaction rollback and post-check
+
+The accepted synthetic rows are written inside a temporary SQLite transaction:
+
+```text
 source events: 3
 schedule versions: 5
 current schedules: 3
-audit decisions: 5
-canonical IDs created: 0
-production rows written: 0
+mapping audit decisions: 5
+canonical events: 0
+raw imports: 0
+odds snapshots: 0
 ```
 
-State sequence:
+The transaction is always rolled back. Every target table is verified as zero afterward.
+
+## V0.18 validation
 
 ```text
-offseason_sleep
--> preseason_dry_run_config_valid
--> preseason_dry_run_partial
--> preseason_dry_run_ready_awaiting_owner_approval
+formal state:
+OFFSEASON_PRESEASON_MANUAL_SCHEDULE_IMPORT_PREFLIGHT_AND_ROLLBACK_V1_READY
+
+checks: 19 / 19
+focused workflow: 29845051057
+full test workflow: 29845050863
+preseason workflow: 29845050942
+public-schema workflow: 29845051009
+artifact: 8500959742
+artifact digest:
+sha256:cd398c5a3bba096b1f5ba392bb47c8afff766be66a2d955a267d0360bfd4d654
 ```
 
-The last state is simulated readiness only. It does not authorize external retrieval, production import or recurring collection.
-
-## Current validation
+## V0.18 assets
 
 ```text
-OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_V1_READY
-25 / 25 checks passed
-
-OFFSEASON_PUBLIC_CONTRACT_DRIFT_REPORT_V1_READY
-9 / 9 checks passed
-0 detected drift
-
-OFFSEASON_PUBLIC_JSON_SCHEMA_AND_CHECKSUM_MANIFEST_V1_READY
-3 schema declarations
-8 integrity assets
-
-OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES_V1_READY
-15 / 15 checks passed
-
-V0.17 focused workflow: 29842819060
-V0.17 full test workflow: 29842819689
-V0.17 public-schema workflow: 29842820112
-V0.17 artifact: 8500060347
+config/manual-schedule-import-preflight-v1.json
+data/manual-schedule-import-preflight-current-status-v1.json
+src/nba_odds_history_hub/manual_schedule_preflight.py
+scripts/validate_manual_schedule_preflight_v1.py
+tests/test_manual_schedule_preflight_v1.py
+docs/manual-schedule-import-preflight-v1.md
+.github/workflows/validate-manual-schedule-preflight-v1.yml
 ```
 
-## Rebuild validation assets
+## Approval boundary
 
-Build the aggregate readiness export:
+```text
+request id: SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001
+state: disabled_preapproval
+owner approval granted: false
+execution enabled: false
+maximum execution count: 0
+production import executed: false
+external files read: false
+network calls made: false
+production database touched: false
+scheduled collection: false
+canonical event IDs created: 0
+cross-repository write: false
+```
+
+The preflight is a safety rehearsal, not a production import tool.
+
+## Existing foundation
+
+- `matchups.json` + `straight.json` intake
+- American-to-decimal and implied-probability normalization
+- separate `observed_at` and `ingested_at`
+- SQLite snapshot history and changes-only retention
+- source and provider registries
+- canonical 30-team registry
+- market taxonomy
+- schedule-import and mapping contracts
+- schedule-version history and mapping audit records
+- aggregate readiness dashboard
+- public release manifest and static release index
+- deterministic drift report
+- Draft 2020-12 JSON Schema declarations
+- SHA-256 governance asset manifest
+- synthetic preseason schedule dry run
+
+## Current real-data state
+
+```text
+real snapshots: 1
+futures markets: 5
+quote identities: 91
+movement-ready quote identities: 0
+canonical mapping coverage: 0%
+production schedule imported: false
+external schedule read: false
+scheduled collection: false
+Phase 2 approval granted: false
+```
+
+## Run validation
+
+Install and run all tests:
 
 ```bash
-python scripts/build_offseason_aggregate_metadata_export_v1.py \
-  --as-of 2026-07-21 \
-  --output data/public/offseason-metadata-readiness-v1.json
+python -m pip install -e ".[dev]"
+pytest -q
 ```
 
-Build the contract drift report:
+Rebuild the V0.18 preflight report:
 
 ```bash
-python scripts/build_public_contract_drift_report_v1.py \
-  --output data/public/readiness-contract-drift-report-v1.json
+python scripts/validate_manual_schedule_preflight_v1.py \
+  --output runtime/reports/manual-schedule-import-preflight-v1.json
 ```
 
-Build the integrity manifest:
-
-```bash
-python scripts/build_public_governance_checksums_v1.py \
-  --output data/public/public-governance-checksums-v1.json
-```
-
-Run the preseason dry run:
+Run the earlier preseason dry run:
 
 ```bash
 python scripts/validate_preseason_dry_run_v1.py \
   --output runtime/reports/preseason-dry-run-v1.json
 ```
 
-Run all tests:
+## Public status pages
 
-```bash
-python -m pip install -e ".[dev]"
-pytest -q
-```
-
-## Current aggregate state
-
-```text
-teams: 30
-market classes: 11
-sources: 1
-providers: 1
-metadata missing fields: 0
-automation approvals: 0
-active cadence templates: 0
-contract drift count: 0
-```
-
-## Current execution boundary
-
-```text
-new sources activated: 0
-new providers activated: 0
-external schedule read: false
-production schedule imported: false
-scheduled collection: false
-Phase 2 approval granted: false
-canonical event IDs created by dry run: 0
-production rows written by dry run: 0
-```
-
-## Quick start
-
-```bash
-python -m pip install -e ".[dev]"
-pytest -q
-```
-
-Validate an incoming package:
-
-```bash
-odds-hub-validate-intake --package-dir data/incoming/example
-```
+- [`readiness.html`](readiness.html) — aggregate offseason readiness
+- [`release-index.html`](release-index.html) — public contract versions and drift status
 
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
+- [`docs/manual-schedule-import-preflight-v1.md`](docs/manual-schedule-import-preflight-v1.md)
 - [`docs/preseason-dry-run-v1.md`](docs/preseason-dry-run-v1.md)
 - [`docs/public-data-declarations-v1.md`](docs/public-data-declarations-v1.md)
 - [`docs/static-release-index-drift-v1.md`](docs/static-release-index-drift-v1.md)
@@ -234,4 +188,4 @@ odds-hub-validate-intake --package-dir data/incoming/example
 
 ## Public repository boundary
 
-Large or continuously changing raw data and complete SQLite databases do not belong in the public repository. The repository keeps code, schemas, manifests, QA reports, documentation, tests and small privacy-safe samples.
+Large or continuously changing raw data, complete SQLite databases, private browser material, HAR files, account exports, cookies, sessions and authorization material do not belong in this repository. Code, schemas, manifests, QA reports, documentation, tests and small privacy-safe fixtures are appropriate here.
