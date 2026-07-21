@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "schedule-import-contract-v1",
+  "createdAt": "2026-07-21",
+  "allowedInputModes": ["official_schedule_json", "owner_supplied_schedule_file", "synthetic_fixture"],
+  "requiredSourceFields": [
+    "sourceId",
+    "sourceEventId",
+    "scheduledTipoff",
+    "sourceTimezone",
+    "homeTeamAlias",
+    "awayTeamAlias",
+    "retrievedAt",
+    "payloadSha256"
+  ],
+  "normalizedFields": [
+    "source_id",
+    "source_event_id",
+    "canonical_event_id",
+    "scheduled_tipoff_utc",
+    "home_team_abbr",
+    "away_team_abbr",
+    "mapping_status",
+    "mapping_method",
+    "schedule_version",
+    "retrieved_at",
+    "source_payload_sha256"
+  ],
+  "mappingStatuses": ["unmapped", "candidate_unverified", "verified", "rejected", "quarantined"],
+  "mappingMethods": ["none", "explicit_official_id", "explicit_project_id", "exact_date_home_away_candidate", "manual_audited_mapping", "synthetic_fixture_only"],
+  "identityPolicy": {
+    "sourceEventIdRequired": true,
+    "canonicalEventIdNullableUntilVerified": true,
+    "inventedCanonicalEventIdAllowed": false,
+    "exactCandidateKey": ["scheduled_game_date", "home_team_abbr", "away_team_abbr"],
+    "fuzzyMatchingAllowed": false,
+    "scoreAssistedIdentityRepairAllowed": false,
+    "manyToManyMappingAllowed": false,
+    "manualMappingRequiresAuditRecord": true,
+    "historicalAliasRequiresSeasonValidation": true,
+    "unknownTeamAliasBehavior": "quarantined"
+  },
+  "timePolicy": {
+    "scheduledTipoffMustBeTimezoneAware": true,
+    "retrievedAtMustBeTimezoneAware": true,
+    "normalizedTimezone": "UTC",
+    "dateOnlyScheduleAccepted": false,
+    "tipoffChangeCreatesNewScheduleVersion": true,
+    "priorTipoffValuePreserved": true
+  },
+  "qualityGates": {
+    "uniqueSourceEventIdWithinSource": true,
+    "homeAndAwayMustDiffer": true,
+    "bothTeamsMustResolve": true,
+    "scheduledTipoffRequired": true,
+    "payloadHashRequired": true,
+    "duplicateNormalizedEventBehavior": "quarantine",
+    "conflictingCanonicalMappingBehavior": "reject"
+  },
+  "currentState": {
+    "contractReady": true,
+    "scheduleImported": false,
+    "collectionActive": false
+  }
+}
