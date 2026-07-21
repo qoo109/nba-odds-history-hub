@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "manual-schedule-import-preflight-report-v1",
+  "asOf": "2026-07-21",
+  "requestId": "SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001",
+  "formalState": "OFFSEASON_PRESEASON_MANUAL_SCHEDULE_IMPORT_PREFLIGHT_AND_ROLLBACK_V1_READY",
+  "checks": {
+    "contract_disabled": true,
+    "owner_approval_false": true,
+    "execution_disabled": true,
+    "three_stages_present": true,
+    "exact_file_identity": true,
+    "schema_match": true,
+    "season_match": true,
+    "aggregate_preview": true,
+    "source_event_preview": true,
+    "schedule_version_preview": true,
+    "current_schedule_preview": true,
+    "mapping_audit_preview": true,
+    "no_canonical_ids": true,
+    "no_market_rows": true,
+    "rollback_executed": true,
+    "post_rollback_zero_rows": true,
+    "production_import_false": true,
+    "network_false": true,
+    "cross_repository_false": true
+  },
+  "checksPassed": 19,
+  "checksTotal": 19,
+  "failedChecks": [],
+  "stages": [
+    {
+      "stage": 1,
+      "id": "identity_and_schema_preflight",
+      "passed": true,
+      "result": {
+        "path": "data/fixtures/preseason-dry-run-v1.json",
+        "filename": "preseason-dry-run-v1.json",
+        "bytes": 2204,
+        "sha256": "1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512",
+        "schemaVersion": "preseason-dry-run-fixture-v1",
+        "seasonId": "2026-27"
+      }
+    },
+    {
+      "stage": 2,
+      "id": "aggregate_preview",
+      "passed": true,
+      "result": {
+        "observations": 2,
+        "acceptedRows": 5,
+        "excludedRows": 2,
+        "uniqueAcceptedEvents": 3,
+        "excludedReasonCounts": {
+          "same_team": 1,
+          "unknown_alias": 1
+        },
+        "observationSummary": [
+          {
+            "observation": 1,
+            "accepted": 2,
+            "excluded": 1,
+            "excludedReasonCounts": {
+              "unknown_alias": 1
+            }
+          },
+          {
+            "observation": 2,
+            "accepted": 3,
+            "excluded": 1,
+            "excludedReasonCounts": {
+              "same_team": 1
+            }
+          }
+        ],
+        "expectedCountsMatch": true,
+        "rowLevelExcludedRecordsEmitted": false
+      }
+    },
+    {
+      "stage": 3,
+      "id": "transaction_rollback_and_postcheck",
+      "passed": true,
+      "result": {
+        "transactionStarted": true,
+        "rollbackExecuted": true,
+        "insideTransaction": {
+          "dataSources": 1,
+          "sourceEvents": 3,
+          "scheduleVersions": 5,
+          "currentSchedules": 3,
+          "mappingAuditDecisions": 5,
+          "canonicalEvents": 0,
+          "rawImports": 0,
+          "oddsSnapshots": 0
+        },
+        "afterRollback": {
+          "dataSources": 0,
+          "sourceEvents": 0,
+          "scheduleVersions": 0,
+          "currentSchedules": 0,
+          "mappingAuditDecisions": 0,
+          "canonicalEvents": 0,
+          "rawImports": 0,
+          "oddsSnapshots": 0
+        },
+        "allPreviewRowsRemoved": true,
+        "productionDatabaseTouched": false
+      }
+    }
+  ],
+  "approval": {
+    "ownerApprovalGranted": false,
+    "executionEnabled": false,
+    "executionCount": 0,
+    "productionImportExecuted": false,
+    "postImportVerificationState": "not_applicable_preapproval"
+  },
+  "boundary": {
+    "fixtureOnly": true,
+    "externalFilesRead": false,
+    "networkCallsMade": false,
+    "productionDatabaseTouched": false,
+    "productionScheduleImported": false,
+    "scheduledCollection": false,
+    "canonicalEventIdsCreated": 0,
+    "crossRepositoryWrite": false,
+    "rowLevelExcludedRecordsEmitted": false
+  }
+}
