@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from nba_odds_history_hub.schedule_adapter import adapt_fixture
@@ -42,3 +44,33 @@ def test_current_registries_remain_role_limited():
     assert all(source["usageBoundary"].strip() for source in sources)
     assert all(provider["sourceId"] in source_ids for provider in providers)
     assert all(provider["note"].strip() for provider in providers)
+
+
+def test_aggregate_validator_report(tmp_path: Path):
+    output = tmp_path / "report.json"
+    subprocess.run(
+        [
+            sys.executable,
+            "scripts/validate_source_provider_schedule_adapter_v1.py",
+            "--self-test",
+            "--output",
+            str(output),
+        ],
+        cwd=ROOT,
+        check=True,
+    )
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["formalState"] == (
+        "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS"
+    )
+    assert report["checksFailed"] == 0
+    assert report["metadataQa"]["legacyMetadataUpgradeRequired"] is True
+    assert report["scheduleAdapter"]["statusCounts"] == {
+        "candidate_unverified": 2,
+        "quarantined": 2,
+        "rejected": 2,
+    }
+    assert report["mappingStatusExport"]["rowLevelRecordsIncluded"] is False
+    assert report["quality"]["networkCallsMade"] is False
+    assert report["quality"]["databaseWrite"] is False
+    assert report["quality"]["crossRepositoryWrite"] is False
