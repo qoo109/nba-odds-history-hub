@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "official-schedule-adapter-fixture-v1",
+  "fixtureMode": true,
+  "sourceId": "fixture_official_schedule",
+  "observedAt": "2026-07-21T13:45:00+08:00",
+  "payloadSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "games": [
+    {
+      "caseId": "valid_current_teams",
+      "gameId": "20260001",
+      "gameTimeUTC": "2026-10-20T23:30:00Z",
+      "homeTeam": {"teamTricode": "BOS"},
+      "awayTeam": {"teamTricode": "ATL"},
+      "expectedStatus": "candidate_unverified"
+    },
+    {
+      "caseId": "valid_source_aliases",
+      "gameId": "20260002",
+      "gameTimeUTC": "2026-10-21T02:00:00Z",
+      "homeTeam": {"teamTricode": "BRK"},
+      "awayTeam": {"teamTricode": "PHO"},
+      "expectedStatus": "candidate_unverified"
+    },
+    {
+      "caseId": "historical_alias_quarantined",
+      "gameId": "20260003",
+      "gameTimeUTC": "2026-10-21T23:30:00Z",
+      "homeTeam": {"teamTricode": "NJN"},
+      "awayTeam": {"teamTricode": "NYK"},
+      "expectedStatus": "quarantined"
+    },
+    {
+      "caseId": "unknown_team_quarantined",
+      "gameId": "20260004",
+      "gameTimeUTC": "2026-10-22T01:00:00Z",
+      "homeTeam": {"teamTricode": "XXX"},
+      "awayTeam": {"teamTricode": "MIA"},
+      "expectedStatus": "quarantined"
+    },
+    {
+      "caseId": "same_team_rejected",
+      "gameId": "20260005",
+      "gameTimeUTC": "2026-10-22T02:00:00Z",
+      "homeTeam": {"teamTricode": "TOR"},
+      "awayTeam": {"teamTricode": "TOR"},
+      "expectedStatus": "rejected"
+    },
+    {
+      "caseId": "naive_time_rejected",
+      "gameId": "20260006",
+      "gameTimeUTC": "2026-10-22T19:30:00",
+      "homeTeam": {"teamTricode": "CHI"},
+      "awayTeam": {"teamTricode": "CLE"},
+      "expectedStatus": "rejected"
+    }
+  ]
+}
