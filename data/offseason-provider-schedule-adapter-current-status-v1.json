@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "offseason-provider-schedule-adapter-current-status-v1",
+  "updatedAt": "2026-07-21T14:25:00+08:00",
+  "formalState": "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS",
+  "mergeCommit": "b61d25843447adadaa4214098d4082f29ff25864",
+  "testWorkflowRunId": 29806193268,
+  "testStatus": "success",
+  "checksPassed": 24,
+  "checksTotal": 24,
+  "checksFailed": 0,
+  "metadataQa": {
+    "sourceCount": 1,
+    "providerCount": 1,
+    "sourceMissingExplicitFields": ["active", "reviewStatus", "rightsStatus"],
+    "providerMissingExplicitFields": ["dataScope", "definitionStatus", "supportedFormats"],
+    "legacyMetadataUpgradeRequired": true,
+    "newSourcesActivated": 0,
+    "newProvidersActivated": 0
+  },
+  "scheduleAdapter": {
+    "fixtureGames": 6,
+    "candidateUnverified": 2,
+    "quarantined": 2,
+    "rejected": 2,
+    "canonicalEventIdsCreated": 0,
+    "databaseRowsWritten": 0
+  },
+  "quality": {
+    "fixtureMode": true,
+    "aggregateOnly": true,
+    "externalScheduleRead": false,
+    "networkCallsMade": false,
+    "rowLevelScheduleDataPublished": false,
+    "databaseWrite": false,
+    "crossRepositoryWrite": false,
+    "collectionActive": false
+  }
+}
