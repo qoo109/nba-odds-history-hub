@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "offseason-reference-foundation-current-status-v1",
+  "updatedAt": "2026-07-21T11:55:00+08:00",
+  "formalState": "OFFSEASON_REFERENCE_FOUNDATION_V1_READY",
+  "mergeCommit": "a4164ddd7a50eb054036f4cb0966ec84656b4591",
+  "workflowRunId": 29799499405,
+  "artifactId": 8483214949,
+  "artifactDigest": "sha256:b169859615391932b09c344d0b288c776106d71c91016a22222982032ce6bc70",
+  "checksPassed": 34,
+  "checksTotal": 34,
+  "checksFailed": 0,
+  "referenceAssets": {
+    "teamRegistry": "config/nba-team-registry-v1.json",
+    "marketTaxonomy": "config/market-taxonomy-v1.json",
+    "captureReadiness": "config/offseason-capture-readiness-v1.json",
+    "documentation": "docs/offseason-reference-foundation-v1.md",
+    "validator": "scripts/validate_offseason_reference_foundation_v1.py",
+    "workflow": ".github/workflows/validate-offseason-reference-foundation-v1.yml"
+  },
+  "summary": {
+    "teamCount": 30,
+    "eastTeams": 15,
+    "westTeams": 15,
+    "divisionCount": 6,
+    "marketClassCount": 11,
+    "cadenceTemplateCount": 5,
+    "activeCadenceTemplates": 0
+  },
+  "currentMode": "offseason_sleep",
+  "liveCollectionActive": false,
+  "scheduledCollectionActive": false,
+  "manualPhase2ApprovalGranted": false,
+  "phase2RequestId": "ODDS-PHASE2-CAPTURE-2026-07-21-001",
+  "referenceDataReady": true,
+  "multiObservationHistoryReady": false,
+  "classificationReady": false,
+  "canonicalJoinReady": false,
+  "networkCallsMade": false,
+  "sourcePayloadsRead": false,
+  "rawRowsEmitted": 0,
+  "rawFilesEmitted": false,
+  "nbaValueLabModified": false
+}

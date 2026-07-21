@@ -4,21 +4,22 @@ Updated: 2026-07-21
 
 ## Current phase
 
-**V0.5 — Daily lawful source health and GitHub Actions Artifact backup active; Phase 2 odds capture disabled**
+**V0.7 — Offseason reference foundation ready; live collection remains asleep**
 
 This repository remains fully separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest main before this request: 281148b557171ee06c5254baba4ffcef69f3cd30
+latest reference merge: a4164ddd7a50eb054036f4cb0966ec84656b4591
+current mode: offseason_sleep
 daily source-health schedule: 09:11 Asia/Taipei
-scheduled odds capture: false
+scheduled live collection: false
+manual Phase 2 approval granted: false
 Google Drive automatic backup default: false
 backup mode: GitHub Actions Artifact + manual Drive upload
 real snapshots: 1
 movement-ready quote identities: 0
-formal stake: 0
 ```
 
 ## Completed
@@ -26,15 +27,60 @@ formal stake: 0
 - V0.2 importer, SQLite storage, exports, tests, and GitHub Actions
 - V0.3 first real snapshot validation, public dashboard, source/bookmaker registries, QA report, and changes-only retention
 - V0.4 grouped multi-snapshot history builder and second-snapshot intake gate
-- Stable quote identity excluding price and line values
-- Distinct `observed_at` counting, duplicate-time detection, first/latest comparison, and dormant movement charts
-- Three-file package validation: `matchups.json`, `straight.json`, and `metadata.json`
-- Sensitive-key scanning, SHA-256 reporting, structural QA, and `readyForImport` gate
-- V0.5 daily approved free/public source-health checks
-- ETag, Last-Modified, file-size, SHA-256, and exact-duplicate tracking
-- 14-day safe GitHub Actions Artifact output
-- Optional Google Drive restore/upload implementation retained but disabled by default after the service-account quota failure
-- Odds capture remains manual-dispatch only and disabled by default
+- V0.5 daily approved free/public source-health checks and 14-day safe Artifact output
+- V0.6 disabled one-time Phase 2 request packet and approval gate
+- V0.7 canonical NBA team registry, market taxonomy, exact event-identity policy, and dormant cadence templates
+
+## Offseason reference foundation
+
+Formal state:
+
+```text
+OFFSEASON_REFERENCE_FOUNDATION_V1_READY
+```
+
+Evidence:
+
+```text
+workflow run: 29799499405
+artifact id: 8483214949
+artifact digest: sha256:b169859615391932b09c344d0b288c776106d71c91016a22222982032ce6bc70
+checks: 34 / 34
+```
+
+Reference assets:
+
+```text
+config/nba-team-registry-v1.json
+config/market-taxonomy-v1.json
+config/offseason-capture-readiness-v1.json
+data/offseason-reference-foundation-current-status-v1.json
+```
+
+Validated summary:
+
+```text
+teams: 30
+East: 15
+West: 15
+divisions: 6
+market classes: 11
+dormant cadence templates: 5
+active cadence templates: 0
+```
+
+## Identity and taxonomy rules
+
+- All 30 active NBA teams have canonical abbreviations, conferences and divisions.
+- Current source aliases are unique.
+- Historical relocation aliases require season validation.
+- Unknown team and market aliases are quarantined.
+- Automatic fuzzy matching is disabled.
+- Game and futures records are separated.
+- Source market keys and source period codes remain preserved.
+- Unverified source events remain `unmapped`.
+- Exact event candidate key is scheduled date + home team + away team.
+- Scores cannot repair event identity.
 
 ## Current real-data validation
 
@@ -44,69 +90,45 @@ futures markets: 5
 quote identities: 91
 movement-ready quote identities: 0
 canonical mapping coverage: 0%
-historical movement ready: false
-executable market backtest ready: false
+multi-observation history ready: false
 ```
+
+## Phase 2 request
+
+```text
+request id: ODDS-PHASE2-CAPTURE-2026-07-21-001
+request state: awaiting explicit owner approval
+approval granted: false
+execution enabled: false
+execution count: 0
+maximum execution count: 1
+```
+
+The request remains valid but intentionally inactive during the offseason. It does not need approval now.
 
 ## Next unique mainline
 
 ```text
-PHASE2_ODDS_CAPTURE_REQUEST_VALID_AWAITING_EXPLICIT_OWNER_APPROVAL
+OFFSEASON_DATA_QUALITY_AND_MAPPING_FIXTURES
 ```
 
-Request ID:
+The next safe work is non-live infrastructure: canonical event-mapping fixtures, schedule import contracts, source/bookmaker metadata QA, database migrations, and dashboard readiness tests.
 
-```text
-ODDS-PHASE2-CAPTURE-2026-07-21-001
-```
+## Required activation gates later
 
-The request packet prepares exactly one manual Phase 2 capture attempt. It does not contain URL values and does not authorize execution.
+1. Owner-reviewed lawful source.
+2. Encrypted configuration only.
+3. True timezone-aware observation time.
+4. Scheduled event time and exact team identities.
+5. Intake report accepted before import.
+6. Changes-only retention.
+7. Manual first-run review.
+8. No automatic classification from a single observation.
 
-Current request controls:
+## Safety boundary
 
-```text
-approval granted: false
-execution enabled: false
-maximum execution count: 1
-execution count: 0
-manual workflow dispatch only: true
-scheduled capture allowed: false
-repeat execution allowed: false
-NBA Value Lab write allowed: false
-formal stake: 0
-```
-
-## Exact next input required
-
-One of these two equivalent routes is required:
-
-1. A second owner-supplied package containing `matchups.json`, `straight.json`, and `metadata.json`; or
-2. Explicit owner approval of request `ODDS-PHASE2-CAPTURE-2026-07-21-001` after the two reviewed URL values are configured only as encrypted repository secrets.
-
-The two secret names are:
-
-```text
-ODDS_MATCHUPS_URL
-ODDS_STRAIGHT_URL
-```
-
-No URL value, cookie, authorization header, token, account export, or HAR file may be committed to the repository.
-
-## Required capture and import gates
-
-1. Source is lawful, free/public, and owner-approved.
-2. No login, cookie/session, authorization token, CAPTCHA, geographic, robots, Terms of Service, HTTP 403, or rate-limit bypass.
-3. OddsPortal, Covers, and Basketball Reference remain manual low-frequency QA only.
-4. `observedAt` is the true timezone-aware retrieval time.
-5. `sourceId` and `bookmakerId` are preserved.
-6. Intake report must produce `readyForImport = true`.
-7. Import uses `changes-only` retention and does not overwrite the first snapshot.
-8. Intake and import-quality reports are reviewed before acceptance.
-9. Only quote identities with at least two distinct observations may enter movement charts.
-10. Opening and Closing labels remain unset unless independently verified.
-
-## Research boundary
-
-The current automation and request packet do not establish historical movement, Opening, Closing, point-in-time joins, executable market backtesting, CLV, EV, ROI, Drawdown, betting edge, or staking.
-
-Formal Stake remains `0`.
+- No login/session credentials or private browser exports in the repository.
+- No access-control or website-policy bypass.
+- No raw continuously changing archives committed publicly.
+- No automatic write to `qoo109/nba-value-lab`.
+- No scheduled live collection during offseason sleep mode.
