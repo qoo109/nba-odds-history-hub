@@ -4,16 +4,15 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.10 — Source/provider metadata QA and fixture schedule adapter validated; collection remains asleep.**
+**V0.12 — Explicit source and provider metadata complete; collection remains asleep.**
 
 Current operating layers:
 
 1. **Daily source health**
    - runs daily at 09:11 Asia/Taipei
    - monitors approved free/public sources
-   - records ETag, Last-Modified, file size, SHA-256, and duplicate skips
    - uploads safe 14-day GitHub Actions Artifacts
-   - Google Drive automation is disabled by default; backup is manual
+   - Google Drive automation remains disabled by default
 2. **Static offseason foundation**
    - canonical 30-team registry
    - normalized game/futures taxonomy
@@ -27,10 +26,10 @@ Current operating layers:
    - schedule-version history
    - audited mapping decisions
    - current-state and aggregate mapping views
-5. **Metadata QA and schedule adapter**
-   - explicit audit of legacy registry gaps
+5. **Explicit metadata and fixture output gate**
+   - complete source and provider metadata fields
    - fixture-only schedule normalization
-   - aggregate mapping-status output
+   - additive candidate persistence
    - no new source or provider activation
 6. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
@@ -56,8 +55,9 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - deterministic schedule-mapping fixtures v1
 - schedule-version and mapping-audit database layer v1
 - static offseason readiness dashboard
-- source/provider metadata contract v1
-- fixture-only official schedule adapter contract v1
+- explicit source metadata registry v0.11
+- explicit provider metadata registry v0.12
+- fixture-only schedule output gate v2
 
 ## Reference and status assets
 
@@ -68,6 +68,8 @@ config/offseason-capture-readiness-v1.json
 config/schedule-import-contract-v1.json
 config/source-provider-metadata-contract-v1.json
 config/official-schedule-adapter-contract-v1.json
+config/source-registry.json
+config/bookmaker-registry.json
 data/offseason-reference-foundation-current-status-v1.json
 data/offseason-schedule-mapping-current-status-v1.json
 data/offseason-database-dashboard-current-status-v1.json
@@ -78,7 +80,7 @@ data/public/offseason-readiness.json
 readiness.html
 ```
 
-Validation results:
+## Validation results
 
 ```text
 OFFSEASON_REFERENCE_FOUNDATION_V1_READY
@@ -90,16 +92,31 @@ OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY
 OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY
 30 / 30 checks passed
 
-OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS
-24 / 24 checks passed
-pytest run 29806193268: success
+OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_READY
+28 / 28 checks passed
+
+OFFSEASON_EXPLICIT_SOURCE_PROVIDER_METADATA_AND_SCHEDULE_OUTPUT_GATE_V2_READY
+26 / 26 checks passed
+
+validation workflow run: 29810808509
+test workflow run: 29810808595
+artifact id: 8487322908
 ```
 
-## Known metadata gaps
+## Metadata boundary
 
-The current legacy source registry does not yet contain explicit `active`, `reviewStatus`, and `rightsStatus` fields. The provider registry does not yet contain explicit `definitionStatus`, `supportedFormats`, and `dataScope` fields.
+The existing source remains manual-only. The existing provider record is classified as `source_label_only`, supports the explicit `american` format field, and is limited to `owner_supplied_nba_futures_snapshots`.
 
-V0.10 records these gaps without guessing values. No new source or provider was activated.
+```text
+new sources activated: 0
+new providers activated: 0
+source automation approved: false
+provider automation approved: false
+external schedule read: false
+production schedule imported: false
+```
+
+These fields document the existing evidence. They do not authorize new access or expand data coverage claims.
 
 ## Quick start
 
@@ -108,19 +125,19 @@ python -m pip install -e ".[dev]"
 pytest -q
 ```
 
-Validate metadata and the fixture schedule adapter:
+Validate explicit metadata and the fixture schedule adapter:
 
 ```bash
 python scripts/validate_source_provider_schedule_adapter_v1.py \
   --self-test \
-  --output /tmp/source-provider-schedule-adapter-v1.json
+  --output /tmp/source-provider-schedule-adapter-v2.json
 ```
 
-Validate the database and dashboard fixtures:
+Validate the fixture output gate:
 
 ```bash
-python scripts/validate_offseason_database_dashboard_v1.py \
-  --output /tmp/offseason-database-dashboard-v1.json
+python scripts/validate_metadata_registry_output_gate_v1.py \
+  --output /tmp/schedule-output-gate-v2.json
 ```
 
 Validate an incoming package:
@@ -149,6 +166,7 @@ odds-hub-import \
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
 - [`readiness.html`](readiness.html)
+- [`docs/provider-metadata-upgrade-v1.md`](docs/provider-metadata-upgrade-v1.md)
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
 - [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
 - [`docs/offseason-database-dashboard-v1.md`](docs/offseason-database-dashboard-v1.md)
