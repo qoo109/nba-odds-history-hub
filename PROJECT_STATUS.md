@@ -4,23 +4,24 @@ Updated: 2026-07-21
 
 ## Current phase
 
-**V0.16 — Public JSON Schema declarations and deterministic integrity manifest ready; collection remains asleep**
+**V0.17 — Preseason schedule dry-run gate ready; collection remains asleep**
 
 This repository remains separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest V0.16 merge: 9a69d822db7fa47d928e40fbbbacb06c69208ca6
+latest V0.17 merge: e17854f1f2bf516f66808eabcec063028fa4a400
 current mode: offseason_sleep
-daily source-health schedule: 09:11 Asia/Taipei
 scheduled collection: false
 manual Phase 2 approval granted: false
+production schedule imported: false
+external schedule read: false
 real snapshots: 1
 movement-ready quote identities: 0
 ```
 
-## Completed through V0.16
+## Completed through V0.17
 
 - Import, normalized storage, exports and tests
 - First snapshot dashboard and grouped history builder
@@ -32,79 +33,81 @@ movement-ready quote identities: 0
 - Explicit source and provider metadata
 - Fixture-only schedule output gate
 - Aggregate readiness export and dashboard
-- Public release manifest and compatibility tests
+- Public release manifest, JSON Schema declarations and checksums
 - Static release index and deterministic drift report
-- Three Draft 2020-12 declarations and deterministic SHA-256 integrity manifest
+- Synthetic preseason configuration and two-observation dry run
 
-## V0.16 validation evidence
+## V0.17 validation evidence
 
 ```text
-formal state: OFFSEASON_PUBLIC_JSON_SCHEMA_AND_CHECKSUM_MANIFEST_V1_READY
-merge commit: 9a69d822db7fa47d928e40fbbbacb06c69208ca6
-pull request: #35
-focused workflow run: 29840324365
-full test workflow run: 29840324295
-artifact id: 8499063803
-artifact digest: sha256:cffd2a3990a45716e8d2803f26f2e481feea3f69c5c8c4eb7a0d1d3452b8f185
-schema declarations: 3
-integrity assets: 8
-algorithm: sha256
+formal state: OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES_V1_READY
+merge commit: e17854f1f2bf516f66808eabcec063028fa4a400
+pull request: #37
+focused workflow run: 29842819060
+full test workflow run: 29842819689
+public-schema workflow run: 29842820112
+artifact id: 8500060347
+artifact digest: sha256:617421e5dfa2039cbee79c25c28dedf3055eba21eec0f0cadd78d219e1f35021
+checks: 15 / 15
 all workflows: success
 ```
 
 Published assets:
 
 ```text
-schemas/public/readiness-release-manifest-v1.schema.json
-schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json
-schemas/public/public-contract-drift-report-v1.schema.json
-data/public/public-governance-checksums-v1.json
-scripts/build_public_governance_checksums_v1.py
-tests/test_public_contract_schema_checksums_v1.py
-docs/public-data-declarations-v1.md
-.github/workflows/validate-public-schema-checksums-v1.yml
+config/preseason-readiness-v1.json
+config/season-configuration-v1.json
+data/fixtures/preseason-dry-run-v1.json
+data/preseason-dry-run-current-status-v1.json
+src/nba_odds_history_hub/preseason_dry_run.py
+scripts/validate_preseason_dry_run_v1.py
+tests/test_preseason_dry_run_v1.py
+tests/test_preseason_dry_run_status_v1.py
+docs/preseason-dry-run-v1.md
+.github/workflows/validate-preseason-dry-run-v1.yml
 ```
 
-## Declaration map
+## Dry-run result
 
 ```text
-data/public/readiness-release-manifest-v1.json
-  -> schemas/public/readiness-release-manifest-v1.schema.json
-
-data/public/offseason-metadata-readiness-v1.json
-  -> schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json
-
-data/public/readiness-contract-drift-report-v1.json
-  -> schemas/public/public-contract-drift-report-v1.schema.json
+observations: 2
+accepted rows: 5
+excluded rows: 2
+source events: 3
+schedule versions: 5
+current schedules: 3
+audit decisions: 5
+schedule identity changes: 1
+payload-only revisions: 1
+idempotent replay rows: 3
+multiple current schedule groups: 0
+canonical event IDs created: 0
+production rows written: 0
 ```
 
-The focused validator checks all three documents, exercises two negative fail-closed cases, rebuilds the integrity manifest and compares it byte-for-byte with the committed copy.
-
-## Integrity manifest
+State sequence:
 
 ```text
-schema: public-governance-checksum-manifest-v1
-release version: v0.14
-asset count: 8
-algorithm: sha256
-deterministic ordering: true
-self checksum excluded: true
+offseason_sleep
+-> preseason_dry_run_config_valid
+-> preseason_dry_run_partial
+-> preseason_dry_run_ready_awaiting_owner_approval
 ```
 
-## Preserved aggregate state
+The final state is a simulated readiness state. It does not authorize external retrieval, production import or recurring collection.
+
+## Preserved governance state
 
 ```text
+public contract drift count: 0
+JSON Schema declarations: 3
+integrity assets: 8
+integrity algorithm: sha256
 teams: 30
 market classes: 11
-sources: 1
-providers: 1
 metadata missing fields: 0
 automation approvals: 0
 active cadence templates: 0
-fixture schedule games: 6
-fixture accepted: 2
-fixture excluded: 4
-contract drift count: 0
 ```
 
 ## Current real-data state
@@ -136,15 +139,16 @@ The request remains inactive during the offseason.
 ## Next unique mainline
 
 ```text
-OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES
+OFFSEASON_PRESEASON_MANUAL_SCHEDULE_IMPORT_PREFLIGHT_AND_ROLLBACK_CONTRACT
 ```
 
-The next safe task is to build a preseason activation checklist, season-configuration contract and synthetic dry-run package for schedule intake, mapping, database persistence and readiness state transitions. It must not retrieve an external schedule or enable live collection.
+The next safe task is to define a disabled, owner-reviewed manual schedule import preflight with exact file identity, schema checks, aggregate preview, transaction rollback and post-import verification. It must use synthetic fixtures until a separate explicit approval is provided and must not retrieve an external schedule or enable recurring collection.
 
 ## Safety boundary
 
 - No access-control or website-policy bypass.
 - No large changing archives committed publicly.
 - No automatic write to `qoo109/nba-value-lab`.
-- No external schedule retrieval in V0.16.
+- No external schedule retrieval in V0.17.
 - No scheduled collection during offseason sleep mode.
+- No production schedule import without separate explicit owner approval.
