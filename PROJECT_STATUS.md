@@ -4,14 +4,14 @@ Updated: 2026-07-21
 
 ## Current phase
 
-**V0.14 — Public readiness schema compatibility and static release manifest ready; collection remains asleep**
+**V0.15 — Static public release index and deterministic contract drift report ready; collection remains asleep**
 
 This repository remains separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest V0.14 merge: 9ba2254b997312b787b843cec47d5a429b83350e
+latest V0.15 merge: a5c20df88f64c0216e447f74baff9d131524de1d
 current mode: offseason_sleep
 daily source-health schedule: 09:11 Asia/Taipei
 scheduled collection: false
@@ -36,32 +36,48 @@ movement-ready quote identities: 0
 - V0.12 explicit provider metadata and completed metadata validation
 - V0.13 aggregate metadata export and readiness dashboard
 - V0.14 static public release manifest and compatibility tests
+- V0.15 static release index, deterministic drift report, fail-closed tests and focused validation
 
-## V0.14 release evidence
+## V0.15 validation evidence
 
 ```text
-merge commit: 9ba2254b997312b787b843cec47d5a429b83350e
-pull request: #31
-test workflow run: 29814842727
-test status: success
+formal state: OFFSEASON_PUBLIC_CONTRACT_DRIFT_REPORT_V1_READY
+merge commit: a5c20df88f64c0216e447f74baff9d131524de1d
+pull request: #33
+focused workflow run: 29818988525
+full test workflow run: 29818988517
+validation artifact id: 8490529626
+validation artifact digest: sha256:f20031ea9b0a48ef98358044b72584b6e0d813b943bd801d6caa7eaf66067794
+checks: 9 / 9
+drift count: 0
+all workflows: success
 ```
 
 Published assets:
 
 ```text
-data/public/readiness-release-manifest-v1.json
-docs/readiness-release-v1.md
-tests/test_public_readiness_contracts.py
+release-index.html
+data/public/readiness-contract-drift-report-v1.json
+scripts/build_public_contract_drift_report_v1.py
+tests/test_readiness_release_index_drift_v1.py
+docs/static-release-index-drift-v1.md
+.github/workflows/validate-public-contract-drift-v1.yml
 ```
 
-The release manifest records both public readiness contracts:
+V0.15 adds release-governance tooling around the existing V0.14 public contracts. It does not silently change either public readiness schema.
+
+## Public contract comparison
+
+The drift report compares:
 
 ```text
-offseason-readiness-v1 — supported legacy contract
-offseason-aggregate-metadata-readiness-v1 — current aggregate contract
+legacy readiness schema: offseason-readiness-v1
+aggregate readiness schema: offseason-aggregate-metadata-readiness-v1
+release manifest schema: readiness-release-manifest-v1
+drift report schema: public-contract-drift-report-v1
 ```
 
-Compatibility tests require both contracts to preserve:
+Required shared values remain:
 
 ```text
 teams: 30
@@ -70,7 +86,46 @@ fixture mode: true
 current mode: offseason_sleep
 ```
 
-## Preserved V0.13 aggregate state
+Current result:
+
+```text
+contract schema mismatches: 0
+fixture flag mismatches: 0
+missing shared fields: 0
+shared field drift: 0
+unsafe release-boundary checks: 0
+```
+
+The validator fails closed when the release version, committed schema, shared field, or inactive execution boundary changes unexpectedly.
+
+## Static release index
+
+`release-index.html` reads only:
+
+```text
+data/public/readiness-release-manifest-v1.json
+data/public/readiness-contract-drift-report-v1.json
+```
+
+It displays contract IDs, schema versions, compatibility state, shared-field comparisons, checks passed and detected drift count.
+
+## Privacy and execution boundary
+
+```text
+repository only: true
+fixture only: true
+aggregate only: true
+row-level records included: false
+collection activated: false
+production schedule imported: false
+network calls made: false
+external files read: false
+cross-repository write: false
+```
+
+The public governance assets contain no event rows, price rows, source URLs, provider names, credentials, cookies, sessions or authorization headers.
+
+## Preserved aggregate state
 
 ```text
 formal state: OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_V1_READY
@@ -85,20 +140,6 @@ fixture schedule games: 6
 fixture accepted: 2
 fixture excluded: 4
 ```
-
-## Privacy and execution boundary
-
-```text
-repository only: true
-aggregate only: true
-collection activated: false
-production schedule imported: false
-network calls made: false
-external files read: false
-cross-repository write: false
-```
-
-The public contracts contain no event rows, price rows, source URLs, provider names, credentials, cookies, sessions or authorization headers.
 
 ## Current real-data state
 
@@ -129,10 +170,10 @@ The request remains inactive during the offseason.
 ## Next unique mainline
 
 ```text
-OFFSEASON_STATIC_RELEASE_INDEX_AND_CONTRACT_DRIFT_REPORT
+OFFSEASON_PUBLIC_CONTRACT_JSON_SCHEMA_DECLARATIONS_AND_CHECKSUMS
 ```
 
-The next safe task is to add a small static release index and a deterministic drift report that compares committed public contract versions and required shared fields. It must stay repository-only and must not activate collection or import production data.
+The next safe task is to publish machine-readable JSON Schema declarations for the public release manifest, aggregate readiness export and drift report, then generate deterministic checksums for committed public governance assets. It must remain repository-only and must not activate collection, retrieve an external schedule or import production data.
 
 ## Safety boundary
 
@@ -140,5 +181,5 @@ The next safe task is to add a small static release index and a deterministic dr
 - No access-control or website-policy bypass.
 - No large changing archives committed publicly.
 - No automatic write to `qoo109/nba-value-lab`.
-- No external schedule retrieval in V0.14.
+- No external schedule retrieval in V0.15.
 - No scheduled collection during offseason sleep mode.
