@@ -56,5 +56,13 @@ def adapt_fixture(payload: dict[str, Any], registry: dict[str, Any]) -> dict[str
         if event_id is not None:
             seen.add(event_id)
         counts[status] += 1
-        results.append({"caseId": game.get("caseId"), "status": status, "reason": reason, "eventId": event_id, "tipoff": tipoff})
+        results.append({
+            "caseId": game.get("caseId"),
+            "status": status,
+            "reason": reason,
+            "eventId": event_id,
+            "tipoff": tipoff,
+            "homeTeamAbbr": home,
+            "awayTeamAbbr": away,
+        })
     return {"results": results, "counts": counts}
