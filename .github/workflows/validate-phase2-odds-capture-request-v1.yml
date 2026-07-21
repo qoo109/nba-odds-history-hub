@@ -1,0 +1,68 @@
+name: Validate Phase 2 odds capture request v1
+
+on:
+  pull_request:
+    paths:
+      - "data/phase2-odds-capture-request-v1.json"
+      - "docs/phase2-odds-capture-request-v1.md"
+      - "scripts/validate_phase2_odds_capture_request_v1.py"
+      - ".github/workflows/validate-phase2-odds-capture-request-v1.yml"
+      - "PROJECT_STATUS.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-phase2-odds-capture-request-v1-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  request-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_phase2_odds_capture_request_v1.py
+
+      - name: Validate disabled request and self-tests
+        run: |
+          python scripts/validate_phase2_odds_capture_request_v1.py \
+            --self-test \
+            --output runtime/reports/phase2_odds_capture_request_validation_v1.json
+
+      - name: Enforce disabled pre-approval state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("runtime/reports/phase2_odds_capture_request_validation_v1.json")
+          report = json.loads(path.read_text(encoding="utf-8"))
+          assert report["formal_state"] == "PHASE2_ODDS_CAPTURE_REQUEST_VALID_AWAITING_EXPLICIT_OWNER_APPROVAL"
+          assert report["checks_failed"] == 0
+          assert report["approval_granted"] is False
+          assert report["execution_enabled"] is False
+          assert report["network_calls_made"] == 0
+          assert report["odds_payloads_downloaded"] == 0
+          assert report["snapshot_imported"] is False
+          assert report["nba_value_lab_modified"] is False
+          assert report["formal_stake"] == 0
+          PY
+
+      - name: Upload aggregate-only validation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase2-odds-capture-request-v1
+          path: runtime/reports/phase2_odds_capture_request_validation_v1.json
+          if-no-files-found: error
+          retention-days: 14
