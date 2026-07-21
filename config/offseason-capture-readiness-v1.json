@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "offseason-capture-readiness-v1",
+  "createdAt": "2026-07-21",
+  "currentMode": "offseason_sleep",
+  "liveCaptureActive": false,
+  "scheduledCaptureActive": false,
+  "manualCaptureRequestApproved": false,
+  "activationRequirements": {
+    "ownerApprovalRequired": true,
+    "lawfulReviewedSourceRequired": true,
+    "encryptedUrlConfigurationRequired": true,
+    "scheduledTipoffCoverageRequired": true,
+    "timezoneAwareObservedAtRequired": true,
+    "intakeReadyForImportRequired": true,
+    "changesOnlyRetentionRequired": true,
+    "rawCredentialScanRequired": true,
+    "manualFirstRunReviewRequired": true
+  },
+  "eventIdentityContract": {
+    "canonicalEventIdSource": "explicit_nba_value_lab_or_official_game_id_mapping",
+    "inventedCanonicalEventIdAllowed": false,
+    "unmappedSourceEventAllowed": true,
+    "defaultMappingStatus": "unmapped",
+    "exactCandidateKey": ["scheduled_game_date", "home_team_abbr", "away_team_abbr"],
+    "scheduledTipoffUsedAsValidation": true,
+    "scoreUsedForIdentityRepair": false,
+    "fuzzyMatchingAllowed": false,
+    "manualMappingRequiresAuditRecord": true,
+    "manyToManyMappingAllowed": false
+  },
+  "snapshotLabels": [
+    {
+      "label":"unclassified_observation",
+      "automaticAssignmentAllowed":true,
+      "requirements":["timezone_aware_observed_at"]
+    },
+    {
+      "label":"opening_candidate",
+      "automaticAssignmentAllowed":false,
+      "requirements":["independently_verified_opening_definition","earliest_complete_market_observation"]
+    },
+    {
+      "label":"intraday_observation",
+      "automaticAssignmentAllowed":false,
+      "requirements":["scheduled_tipoff","verified_pre_tip_observation"]
+    },
+    {
+      "label":"closing_candidate",
+      "automaticAssignmentAllowed":false,
+      "requirements":["independently_verified_closing_definition","last_complete_pre_tip_observation"]
+    }
+  ],
+  "dormantCadenceTemplates": [
+    {"templateId":"t_minus_24h","targetSecondsBeforeTipoff":86400,"active":false},
+    {"templateId":"t_minus_6h","targetSecondsBeforeTipoff":21600,"active":false},
+    {"templateId":"t_minus_60m","targetSecondsBeforeTipoff":3600,"active":false},
+    {"templateId":"t_minus_15m","targetSecondsBeforeTipoff":900,"active":false},
+    {"templateId":"t_minus_5m","targetSecondsBeforeTipoff":300,"active":false}
+  ],
+  "retentionPolicy": {
+    "exactDuplicateRetention": false,
+    "changedPriceOrLineRetention": true,
+    "missingRowsTreatedAsUnchanged": false,
+    "observedAtPreserved": true,
+    "ingestedAtPreserved": true,
+    "sourcePayloadHashPreserved": true
+  },
+  "safetyBoundary": {
+    "loginRequiredSourceAllowed": false,
+    "cookieOrSessionAllowed": false,
+    "authorizationHeaderOrTokenAllowed": false,
+    "harOrAccountExportAllowed": false,
+    "captchaOrAccessRestrictionBypassAllowed": false,
+    "publicRepositoryRawArchiveAllowed": false,
+    "nbaValueLabAutomaticWriteAllowed": false
+  },
+  "readiness": {
+    "referenceDataReady": true,
+    "liveCaptureReady": false,
+    "historicalMovementReady": false,
+    "openingClosingReady": false,
+    "pointInTimeJoinReady": false
+  }
+}

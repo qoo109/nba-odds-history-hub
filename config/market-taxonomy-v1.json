@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "nba-market-taxonomy-v1",
+  "createdAt": "2026-07-21",
+  "normalizationPolicy": {
+    "sourceMarketKeyPreserved": true,
+    "sourcePeriodPreserved": true,
+    "unknownMarketBehavior": "quarantine_unclassified",
+    "automaticSemanticGuessingAllowed": false,
+    "openingClosingInferenceAllowed": false
+  },
+  "eventTypes": [
+    {"eventType":"game","canonicalEventRequired":true,"scheduledTipoffRequired":true},
+    {"eventType":"futures","canonicalEventRequired":false,"scheduledTipoffRequired":false}
+  ],
+  "periods": [
+    {"periodClass":"full_game","displayName":"Full Game","sourceCodeRequired":true},
+    {"periodClass":"first_half","displayName":"First Half","sourceCodeRequired":true},
+    {"periodClass":"second_half","displayName":"Second Half","sourceCodeRequired":true},
+    {"periodClass":"quarter_1","displayName":"First Quarter","sourceCodeRequired":true},
+    {"periodClass":"quarter_2","displayName":"Second Quarter","sourceCodeRequired":true},
+    {"periodClass":"quarter_3","displayName":"Third Quarter","sourceCodeRequired":true},
+    {"periodClass":"quarter_4","displayName":"Fourth Quarter","sourceCodeRequired":true}
+  ],
+  "markets": [
+    {
+      "marketClass":"game_moneyline_full_game",
+      "eventType":"game",
+      "marketType":"moneyline",
+      "periodClass":"full_game",
+      "allowedSides":["home","away"],
+      "lineRequired":false,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":true
+    },
+    {
+      "marketClass":"game_spread_full_game",
+      "eventType":"game",
+      "marketType":"spread",
+      "periodClass":"full_game",
+      "allowedSides":["home","away"],
+      "lineRequired":true,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":true
+    },
+    {
+      "marketClass":"game_total_full_game",
+      "eventType":"game",
+      "marketType":"total",
+      "periodClass":"full_game",
+      "allowedSides":["over","under"],
+      "lineRequired":true,
+      "participantRequired":false,
+      "movementEligible":true,
+      "pointInTimeEligible":true
+    },
+    {
+      "marketClass":"game_moneyline_first_half",
+      "eventType":"game",
+      "marketType":"moneyline",
+      "periodClass":"first_half",
+      "allowedSides":["home","away","draw"],
+      "lineRequired":false,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":true
+    },
+    {
+      "marketClass":"game_spread_first_half",
+      "eventType":"game",
+      "marketType":"spread",
+      "periodClass":"first_half",
+      "allowedSides":["home","away"],
+      "lineRequired":true,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":true
+    },
+    {
+      "marketClass":"game_total_first_half",
+      "eventType":"game",
+      "marketType":"total",
+      "periodClass":"first_half",
+      "allowedSides":["over","under"],
+      "lineRequired":true,
+      "participantRequired":false,
+      "movementEligible":true,
+      "pointInTimeEligible":true
+    },
+    {
+      "marketClass":"futures_championship",
+      "eventType":"futures",
+      "marketType":"moneyline",
+      "periodClass":"full_game",
+      "allowedSides":["participant"],
+      "lineRequired":false,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":false
+    },
+    {
+      "marketClass":"futures_conference",
+      "eventType":"futures",
+      "marketType":"moneyline",
+      "periodClass":"full_game",
+      "allowedSides":["participant"],
+      "lineRequired":false,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":false
+    },
+    {
+      "marketClass":"futures_division",
+      "eventType":"futures",
+      "marketType":"moneyline",
+      "periodClass":"full_game",
+      "allowedSides":["participant"],
+      "lineRequired":false,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":false
+    },
+    {
+      "marketClass":"futures_award",
+      "eventType":"futures",
+      "marketType":"moneyline",
+      "periodClass":"full_game",
+      "allowedSides":["participant"],
+      "lineRequired":false,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":false
+    },
+    {
+      "marketClass":"futures_season_win_total",
+      "eventType":"futures",
+      "marketType":"total",
+      "periodClass":"full_game",
+      "allowedSides":["over","under"],
+      "lineRequired":true,
+      "participantRequired":true,
+      "movementEligible":true,
+      "pointInTimeEligible":false
+    }
+  ],
+  "researchBoundary": {
+    "singleObservationMovementReady": false,
+    "singleObservationOpeningClosingReady": false,
+    "futuresEligibleForGameBacktest": false,
+    "unclassifiedMarketAcceptedIntoCanonicalExports": false
+  }
+}
