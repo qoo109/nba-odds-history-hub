@@ -1,12 +1,18 @@
 {
-  "schemaVersion": "v0.3-bookmaker-registry",
+  "schemaVersion": "v0.12-provider-registry",
   "bookmakers": [
     {
+      "providerId": "pinnacle",
       "bookmakerId": "pinnacle",
       "displayName": "Pinnacle",
       "sourceId": "pinnacle_manual",
       "active": true,
-      "note": "Registry label for owner-supplied manual snapshots; not a claim of official API access."
+      "definitionStatus": "source_label_only",
+      "supportedFormats": ["american"],
+      "dataScope": ["owner_supplied_nba_futures_snapshots"],
+      "automationApproved": false,
+      "metadataVersion": 1,
+      "note": "Explicit metadata for an existing owner-supplied manual data label; no new access or collection capability is enabled."
     }
   ]
 }
