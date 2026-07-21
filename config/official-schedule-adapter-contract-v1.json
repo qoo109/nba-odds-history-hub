@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "official-schedule-adapter-contract-v1",
+  "createdAt": "2026-07-21",
+  "inputMode": "fixture_or_owner_supplied_file",
+  "requiredGameFields": ["gameId", "gameTimeUTC", "homeTeam", "awayTeam"],
+  "requiredTeamFields": ["teamTricode"],
+  "normalizedFields": [
+    "source_id",
+    "source_event_id",
+    "scheduled_tipoff",
+    "home_team_abbr",
+    "away_team_abbr",
+    "mapping_status",
+    "mapping_method",
+    "observed_at",
+    "source_payload_sha256"
+  ],
+  "identityPolicy": {
+    "sourceEventIdComesFromInput": true,
+    "canonicalEventIdCreatedAutomatically": false,
+    "teamAliasesUseCanonicalRegistry": true,
+    "unknownTeamBehavior": "quarantined",
+    "sameTeamBehavior": "rejected",
+    "fuzzyMatchingAllowed": false,
+    "scoreAssistedRepairAllowed": false,
+    "manyToManyMappingAllowed": false
+  },
+  "timePolicy": {
+    "gameTimeMustBeTimezoneAware": true,
+    "observedAtMustBeTimezoneAware": true,
+    "normalizedTimezone": "UTC",
+    "dateOnlyAccepted": false
+  },
+  "outputPolicy": {
+    "validGameStatus": "candidate_unverified",
+    "quarantinedRowsPreservedInAggregateCounts": true,
+    "rowLevelRejectedDataPublished": false,
+    "rawSchedulePayloadPublished": false,
+    "databaseWriteEnabled": false,
+    "crossRepositoryWriteEnabled": false
+  },
+  "currentState": {
+    "adapterContractReady": true,
+    "externalScheduleRead": false,
+    "productionScheduleImported": false,
+    "collectionActive": false
+  }
+}
