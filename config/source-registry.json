@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "v0.3-source-registry",
+  "schemaVersion": "v0.11-source-registry",
   "sources": [
     {
       "sourceId": "pinnacle_manual",
@@ -7,7 +7,12 @@
       "sourceClass": "manual_browser_capture",
       "accessMode": "manual",
       "usageBoundary": "Owner-supplied response bodies only. Do not commit cookies, authorization headers, session tokens, HAR files, or automated access logic.",
-      "automationApproved": false
+      "automationApproved": false,
+      "reviewStatus": "manual_only",
+      "rightsStatus": "owner_supplied_research",
+      "active": true,
+      "metadataVersion": 1,
+      "notes": "Explicit metadata upgrade only. This does not authorize automated retrieval or change the manual-only source role."
     }
   ]
 }

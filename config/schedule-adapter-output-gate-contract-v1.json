@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "schedule-adapter-output-gate-contract-v1",
+  "createdAt": "2026-07-21",
+  "acceptedInputStatus": "candidate_unverified",
+  "excludedInputStatuses": ["quarantined", "rejected"],
+  "requiredAcceptedFields": [
+    "source_id",
+    "source_event_id",
+    "scheduled_tipoff",
+    "home_team_abbr",
+    "away_team_abbr",
+    "mapping_status",
+    "mapping_method",
+    "observed_at",
+    "source_payload_sha256"
+  ],
+  "persistencePolicy": {
+    "registerSourceEventPlaceholder": true,
+    "writeScheduleVersion": true,
+    "writeMappingAuditDecision": true,
+    "createCanonicalEvent": false,
+    "writeSnapshotRows": false,
+    "writeExcludedRows": false,
+    "emitExcludedReasonCounts": true
+  },
+  "identityPolicy": {
+    "canonicalEventIdMayRemainNull": true,
+    "fuzzyMatchingAllowed": false,
+    "scoreAssistedRepairAllowed": false,
+    "manyToManyMappingAllowed": false
+  },
+  "currentState": {
+    "fixtureOnly": true,
+    "productionWriteEnabled": false,
+    "externalScheduleRead": false,
+    "collectionActive": false
+  }
+}

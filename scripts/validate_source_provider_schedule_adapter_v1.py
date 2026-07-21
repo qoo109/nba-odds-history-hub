@@ -60,11 +60,16 @@ def validate(
     actual = {str(row.get("caseId")): str(row.get("status")) for row in adapted["results"]}
     adapter_identity = adapter_contract.get("identityPolicy") or {}
     adapter_output = adapter_contract.get("outputPolicy") or {}
+    source_schema = sources_doc.get("schemaVersion")
+    source_metadata_state_valid = (
+        (source_schema == "v0.3-source-registry" and bool(source_missing))
+        or (source_schema == "v0.11-source-registry" and not source_missing)
+    )
 
     checks = {
         "metadata_contract_schema": metadata_contract.get("schemaVersion") == "source-provider-metadata-contract-v1",
         "adapter_contract_schema": adapter_contract.get("schemaVersion") == "official-schedule-adapter-contract-v1",
-        "source_registry_schema": sources_doc.get("schemaVersion") == "v0.3-source-registry",
+        "source_registry_schema": source_schema in {"v0.3-source-registry", "v0.11-source-registry"},
         "provider_registry_schema": providers_doc.get("schemaVersion") == "v0.3-bookmaker-registry",
         "source_ids_unique": len(source_ids) == len(set(source_ids)),
         "provider_ids_unique": len(provider_ids) == len(set(provider_ids)),
@@ -72,7 +77,7 @@ def validate(
         "source_boundaries_present": all(str(row.get("usageBoundary", "")).strip() for row in sources),
         "manual_sources_not_automated": all(row.get("automationApproved") is False for row in sources),
         "provider_notes_present": all(str(row.get("note", "")).strip() for row in providers),
-        "legacy_source_gaps_explicit": bool(source_missing),
+        "legacy_source_gaps_explicit": source_metadata_state_valid,
         "legacy_provider_gaps_explicit": bool(provider_missing),
         "team_registry_ready": teams_doc.get("schemaVersion") == "nba-team-registry-v1" and teams_doc.get("teamCount") == 30,
         "fixture_mode_only": fixture.get("fixtureMode") is True,
