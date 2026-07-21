@@ -49,6 +49,87 @@ CREATE TABLE IF NOT EXISTS source_events (
     FOREIGN KEY (canonical_event_id) REFERENCES canonical_events(canonical_event_id)
 );
 
+CREATE TABLE IF NOT EXISTS source_event_schedule_versions (
+    schedule_version_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT NOT NULL,
+    source_event_id INTEGER NOT NULL,
+    version_number INTEGER NOT NULL CHECK (version_number >= 1),
+    scheduled_tipoff TEXT NOT NULL,
+    home_team_abbr TEXT NOT NULL,
+    away_team_abbr TEXT NOT NULL,
+    mapping_status TEXT NOT NULL DEFAULT 'unmapped' CHECK (
+        mapping_status IN (
+            'unmapped', 'candidate_unverified', 'verified',
+            'rejected', 'quarantined', 'mapped'
+        )
+    ),
+    mapping_method TEXT NOT NULL DEFAULT 'none',
+    observed_at TEXT NOT NULL,
+    source_payload_sha256 TEXT NOT NULL,
+    is_current INTEGER NOT NULL DEFAULT 1 CHECK (is_current IN (0, 1)),
+    created_at TEXT NOT NULL,
+    UNIQUE (source_id, source_event_id, version_number),
+    FOREIGN KEY (source_id, source_event_id)
+        REFERENCES source_events(source_id, source_event_id)
+        ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_schedule_one_current_version
+ON source_event_schedule_versions (source_id, source_event_id)
+WHERE is_current = 1;
+
+CREATE INDEX IF NOT EXISTS idx_schedule_tipoff
+ON source_event_schedule_versions (scheduled_tipoff, is_current);
+
+CREATE TABLE IF NOT EXISTS source_event_mapping_audit (
+    mapping_audit_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT NOT NULL,
+    source_event_id INTEGER NOT NULL,
+    canonical_event_id TEXT,
+    previous_status TEXT NOT NULL,
+    new_status TEXT NOT NULL CHECK (
+        new_status IN (
+            'unmapped', 'candidate_unverified', 'verified',
+            'rejected', 'quarantined', 'mapped'
+        )
+    ),
+    mapping_method TEXT NOT NULL,
+    reason_code TEXT NOT NULL,
+    actor_type TEXT NOT NULL,
+    decided_at TEXT NOT NULL,
+    source_payload_sha256 TEXT,
+    note TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (source_id, source_event_id)
+        REFERENCES source_events(source_id, source_event_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (canonical_event_id)
+        REFERENCES canonical_events(canonical_event_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mapping_audit_event_time
+ON source_event_mapping_audit (source_id, source_event_id, decided_at);
+
+CREATE VIEW IF NOT EXISTS current_source_event_schedules AS
+SELECT
+    source_id,
+    source_event_id,
+    version_number,
+    scheduled_tipoff,
+    home_team_abbr,
+    away_team_abbr,
+    mapping_status,
+    mapping_method,
+    observed_at,
+    source_payload_sha256
+FROM source_event_schedule_versions
+WHERE is_current = 1;
+
+CREATE VIEW IF NOT EXISTS source_event_mapping_status_summary AS
+SELECT mapping_status, COUNT(*) AS event_count
+FROM source_events
+GROUP BY mapping_status;
+
 CREATE TABLE IF NOT EXISTS raw_imports (
     import_id INTEGER PRIMARY KEY AUTOINCREMENT,
     source TEXT NOT NULL,
