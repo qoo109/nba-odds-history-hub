@@ -1,0 +1,154 @@
+name: One-time Drive dry run
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nba-odds-history-hub-drive-dry-run-once
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+  TZ: Asia/Taipei
+  AUTOMATION_DRY_RUN: "true"
+  GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+  GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+  ODDS_MATCHUPS_URL: ""
+  ODDS_STRAIGHT_URL: ""
+  ODDS_SOURCE_ID: configured_http_source
+  ODDS_SOURCE_NAME: Configured HTTP odds source
+  ODDS_BOOKMAKER_ID: configured_bookmaker
+  ODDS_BOOKMAKER_NAME: Configured bookmaker
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Install and configure rclone
+        run: |
+          test -n "$GDRIVE_FOLDER_ID"
+          test -n "$GDRIVE_SERVICE_ACCOUNT_JSON"
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/gdrive-service-account.json"
+          chmod 600 "$RUNNER_TEMP/gdrive-service-account.json"
+          rclone config create hubdrive drive \
+            scope drive \
+            service_account_file "$RUNNER_TEMP/gdrive-service-account.json" \
+            root_folder_id "$GDRIVE_FOLDER_ID" \
+            --non-interactive
+
+      - name: Restore state and SQLite from Google Drive
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          mkdir -p runtime/state runtime/reports data/databases
+          : > runtime/reports/drive_restore_diagnostics.txt
+          rclone lsd hubdrive: >> runtime/reports/drive_restore_diagnostics.txt 2>&1
+          if rclone lsf hubdrive:07-state --max-depth 1 >/dev/null 2>&1; then
+            rclone copy hubdrive:07-state runtime/state --no-traverse \
+              >> runtime/reports/drive_restore_diagnostics.txt 2>&1
+          fi
+          if rclone lsf hubdrive:02-sqlite --max-depth 1 >/dev/null 2>&1; then
+            rclone copy hubdrive:02-sqlite data/databases \
+              --include "odds_history.sqlite" --no-traverse \
+              >> runtime/reports/drive_restore_diagnostics.txt 2>&1
+          fi
+          exit 0
+
+      - name: Run source health with odds disabled
+        run: |
+          python scripts/automation/full_pipeline.py \
+            --config config/automation-sources.json \
+            --runtime-root runtime \
+            --database data/databases/odds_history.sqlite
+
+      - name: Run test suite
+        if: always()
+        run: pytest -q
+
+      - name: Copy dry-run outputs to Google Drive
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p runtime/source_archive runtime/incoming runtime/backups runtime/exports runtime/reports runtime/state data/databases
+          : > runtime/reports/drive_upload_diagnostics.txt
+          failed=0
+          copy_and_record() {
+            label="$1"
+            shift
+            echo "[$label]" >> runtime/reports/drive_upload_diagnostics.txt
+            rclone "$@" >> runtime/reports/drive_upload_diagnostics.txt 2>&1
+            code=$?
+            echo "exit=$code" >> runtime/reports/drive_upload_diagnostics.txt
+            if [ "$code" -ne 0 ]; then failed=1; fi
+          }
+          copy_and_record source_archive copy runtime/source_archive hubdrive:01-raw-snapshots/source_archive --immutable --create-empty-src-dirs
+          copy_and_record odds_snapshots copy runtime/incoming hubdrive:00-incoming/odds_snapshots --immutable --create-empty-src-dirs
+          copy_and_record backups copy runtime/backups hubdrive:05-backups --immutable --create-empty-src-dirs
+          copy_and_record exports copy runtime/exports hubdrive:03-exports --create-empty-src-dirs
+          copy_and_record source_health copy runtime/reports hubdrive:04-source-health --create-empty-src-dirs
+          copy_and_record state copy runtime/state hubdrive:07-state --create-empty-src-dirs
+          copy_and_record sqlite copy data/databases hubdrive:02-sqlite --include "odds_history.sqlite" --create-empty-src-dirs
+          exit "$failed"
+
+      - name: Verify Google Drive bytes and remote metadata
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          verify_dir="$RUNNER_TEMP/drive-verification"
+          verify_name="verification-${GITHUB_RUN_ID}.json"
+          remote_dir="hubdrive:06-logs/automation-verification/${GITHUB_RUN_ID}"
+          mkdir -p "$verify_dir" runtime/reports
+          printf '{"run_id":"%s","repository":"%s","sha":"%s","dry_run":true,"odds_capture":false,"created_at":"%s"}\n' \
+            "$GITHUB_RUN_ID" "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > "$verify_dir/$verify_name"
+          rclone copyto "$verify_dir/$verify_name" "$remote_dir/$verify_name"
+          rclone check "$verify_dir" "$remote_dir" --one-way --download
+          rclone lsjson "$remote_dir" --files-only --recursive \
+            > runtime/reports/drive_verification_remote.json
+          jq -e --arg name "$verify_name" \
+            'any(.[]; .Name == $name and .IsDir == false and .Size > 0)' \
+            runtime/reports/drive_verification_remote.json >/dev/null
+          jq -n \
+            --arg status "verified" \
+            --arg remote_dir "$remote_dir" \
+            --arg file_name "$verify_name" \
+            --arg run_id "$GITHUB_RUN_ID" \
+            '{status:$status, dry_run:true, odds_capture:false, remote_dir:$remote_dir, file_name:$file_name, run_id:$run_id}' \
+            > runtime/reports/drive_verification_status.json
+
+      - name: Upload safe run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nba-odds-hub-drive-dry-run-${{ github.run_id }}
+          path: |
+            runtime/reports/
+            runtime/backups/*.sha256
+            runtime/exports/
+          if-no-files-found: warn
+          retention-days: 14
