@@ -21,10 +21,11 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Run focused tests
         run: pytest -q tests/test_manual_schedule_preflight_v1.py
-      - name: Build aggregate preflight report
+      - name: Rebuild deterministic preflight status
         run: |
           mkdir -p runtime/reports
           python scripts/validate_manual_schedule_preflight_v1.py --output runtime/reports/manual-schedule-import-preflight-v1.json
+          cmp data/manual-schedule-import-preflight-current-status-v1.json runtime/reports/manual-schedule-import-preflight-v1.json
       - uses: actions/upload-artifact@v4
         with:
           name: manual-schedule-import-preflight-v1
