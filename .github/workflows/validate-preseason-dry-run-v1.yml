@@ -25,7 +25,14 @@ jobs:
         run: |
           mkdir -p runtime/reports
           python scripts/validate_preseason_dry_run_v1.py --output runtime/reports/preseason-dry-run-v1.json
-          cmp data/preseason-dry-run-current-status-v1.json runtime/reports/preseason-dry-run-v1.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          committed = json.loads(Path("data/preseason-dry-run-current-status-v1.json").read_text())
+          rebuilt = json.loads(Path("runtime/reports/preseason-dry-run-v1.json").read_text())
+          if committed != rebuilt:
+              raise SystemExit("rebuilt preseason report differs from committed status")
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: preseason-dry-run-v1
