@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate role-limited metadata and the fixture-only schedule adapter."""
+"""Validate explicit source/provider metadata and the fixture-only schedule adapter."""
 from __future__ import annotations
 
 import argparse
@@ -11,8 +11,8 @@ from typing import Any
 
 from nba_odds_history_hub.schedule_adapter import adapt_fixture
 
-READY = "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS"
-INVALID = "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_INVALID"
+READY = "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_READY"
+INVALID = "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_INVALID"
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -37,48 +37,47 @@ def validate(
     sources = sources_doc.get("sources") or []
     providers = providers_doc.get("bookmakers") or []
     source_ids = [str(row.get("sourceId")) for row in sources]
-    provider_ids = [str(row.get("bookmakerId")) for row in providers]
+    provider_ids = [str(row.get("providerId")) for row in providers]
     source_required = set(metadata_contract.get("sourceRequiredFields") or [])
     provider_required = set(metadata_contract.get("providerRequiredFields") or [])
+    allowed_definitions = set(metadata_contract.get("allowedDefinitionStatuses") or [])
+    allowed_formats = set(metadata_contract.get("allowedFormats") or [])
 
-    source_missing: dict[str, list[str]] = {}
-    for row in sources:
-        missing = sorted(field for field in source_required if field not in row)
-        if missing:
-            source_missing[str(row.get("sourceId"))] = missing
-    provider_missing: dict[str, list[str]] = {}
-    for row in providers:
-        present = set(row)
-        if "providerId" in provider_required and "bookmakerId" in row:
-            present.add("providerId")
-        missing = sorted(field for field in provider_required if field not in present)
-        if missing:
-            provider_missing[str(row.get("bookmakerId"))] = missing
+    source_missing = {
+        str(row.get("sourceId")): sorted(source_required - set(row))
+        for row in sources if source_required - set(row)
+    }
+    provider_missing = {
+        str(row.get("providerId")): sorted(provider_required - set(row))
+        for row in providers if provider_required - set(row)
+    }
 
     adapted = adapt_fixture(fixture, teams_doc)
     expected = {str(game.get("caseId")): str(game.get("expectedStatus")) for game in fixture.get("games") or []}
     actual = {str(row.get("caseId")): str(row.get("status")) for row in adapted["results"]}
     adapter_identity = adapter_contract.get("identityPolicy") or {}
     adapter_output = adapter_contract.get("outputPolicy") or {}
-    source_schema = sources_doc.get("schemaVersion")
-    source_metadata_state_valid = (
-        (source_schema == "v0.3-source-registry" and bool(source_missing))
-        or (source_schema == "v0.11-source-registry" and not source_missing)
-    )
 
     checks = {
         "metadata_contract_schema": metadata_contract.get("schemaVersion") == "source-provider-metadata-contract-v1",
         "adapter_contract_schema": adapter_contract.get("schemaVersion") == "official-schedule-adapter-contract-v1",
-        "source_registry_schema": source_schema in {"v0.3-source-registry", "v0.11-source-registry"},
-        "provider_registry_schema": providers_doc.get("schemaVersion") == "v0.3-bookmaker-registry",
+        "source_registry_schema": sources_doc.get("schemaVersion") == "v0.11-source-registry",
+        "provider_registry_schema": providers_doc.get("schemaVersion") == "v0.12-provider-registry",
         "source_ids_unique": len(source_ids) == len(set(source_ids)),
         "provider_ids_unique": len(provider_ids) == len(set(provider_ids)),
         "provider_sources_exist": all(str(row.get("sourceId")) in set(source_ids) for row in providers),
+        "source_metadata_complete": not source_missing,
+        "provider_metadata_complete": not provider_missing,
         "source_boundaries_present": all(str(row.get("usageBoundary", "")).strip() for row in sources),
         "manual_sources_not_automated": all(row.get("automationApproved") is False for row in sources),
+        "providers_not_automated": all(row.get("automationApproved") is False for row in providers),
+        "provider_definitions_allowed": all(row.get("definitionStatus") in allowed_definitions for row in providers),
+        "provider_formats_allowed": all(
+            bool(row.get("supportedFormats")) and set(row.get("supportedFormats") or []).issubset(allowed_formats)
+            for row in providers
+        ),
+        "provider_scope_present": all(bool(row.get("dataScope")) for row in providers),
         "provider_notes_present": all(str(row.get("note", "")).strip() for row in providers),
-        "legacy_source_gaps_explicit": source_metadata_state_valid,
-        "legacy_provider_gaps_explicit": bool(provider_missing),
         "team_registry_ready": teams_doc.get("schemaVersion") == "nba-team-registry-v1" and teams_doc.get("teamCount") == 30,
         "fixture_mode_only": fixture.get("fixtureMode") is True,
         "fixture_outcomes_match": actual == expected,
@@ -94,7 +93,7 @@ def validate(
     }
     failed = sorted(name for name, passed in checks.items() if not passed)
     return {
-        "schemaVersion": "source-provider-schedule-adapter-validation-report-v1",
+        "schemaVersion": "source-provider-schedule-adapter-validation-report-v2",
         "validatedAt": now_utc(),
         "formalState": READY if not failed else INVALID,
         "checks": checks,
@@ -110,6 +109,8 @@ def validate(
             "sourceMissingExplicitFields": source_missing,
             "providerMissingExplicitFields": provider_missing,
             "legacyMetadataUpgradeRequired": bool(source_missing or provider_missing),
+            "sourceRegistryUpgradeComplete": not source_missing,
+            "providerRegistryUpgradeComplete": not provider_missing,
             "newSourcesActivated": 0,
             "newProvidersActivated": 0,
         },
@@ -147,6 +148,10 @@ def self_test(args: argparse.Namespace) -> None:
     changed["sources"][0]["automationApproved"] = True
     assert validate(docs[0], docs[1], changed, docs[3], docs[4], docs[5])["formalState"] == INVALID
 
+    changed = copy.deepcopy(docs[3])
+    del changed["bookmakers"][0]["definitionStatus"]
+    assert validate(docs[0], docs[1], docs[2], changed, docs[4], docs[5])["formalState"] == INVALID
+
     changed = copy.deepcopy(docs[1])
     changed["identityPolicy"]["fuzzyMatchingAllowed"] = True
     assert validate(docs[0], changed, docs[2], docs[3], docs[4], docs[5])["formalState"] == INVALID
@@ -173,6 +178,12 @@ def main() -> int:
     report = validate(*docs)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({
+        "formalState": report["formalState"],
+        "checksPassed": report["checksPassed"],
+        "checksTotal": report["checksTotal"],
+        "checksFailed": report["checksFailed"],
+    }, indent=2))
     return 0 if report["formalState"] == READY else 1
 
 

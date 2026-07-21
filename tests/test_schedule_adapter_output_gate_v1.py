@@ -72,15 +72,26 @@ def persist_fixture_candidates(database: Path):
     return gated
 
 
-def test_explicit_source_registry_upgrade():
+def test_explicit_source_and_provider_registry_upgrades():
     source = load("config/source-registry.json")
+    provider = load("config/bookmaker-registry.json")
+
     assert source["schemaVersion"] == "v0.11-source-registry"
     assert len(source["sources"]) == 1
-    record = source["sources"][0]
-    assert record["active"] is True
-    assert record["reviewStatus"] == "manual_only"
-    assert record["rightsStatus"] == "owner_supplied_research"
-    assert record["automationApproved"] is False
+    source_record = source["sources"][0]
+    assert source_record["active"] is True
+    assert source_record["reviewStatus"] == "manual_only"
+    assert source_record["rightsStatus"] == "owner_supplied_research"
+    assert source_record["automationApproved"] is False
+
+    assert provider["schemaVersion"] == "v0.12-provider-registry"
+    assert len(provider["bookmakers"]) == 1
+    provider_record = provider["bookmakers"][0]
+    assert provider_record["providerId"] == provider_record["bookmakerId"] == "pinnacle"
+    assert provider_record["definitionStatus"] == "source_label_only"
+    assert provider_record["supportedFormats"] == ["american"]
+    assert provider_record["dataScope"] == ["owner_supplied_nba_futures_snapshots"]
+    assert provider_record["automationApproved"] is False
 
 
 def test_gate_accepts_only_current_alias_candidates():

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate explicit source metadata and fixture schedule persistence gating."""
+"""Validate explicit source/provider metadata and fixture schedule persistence gating."""
 from __future__ import annotations
 
 import argparse
@@ -17,8 +17,8 @@ from nba_odds_history_hub.mapping import (
 )
 from nba_odds_history_hub.schedule_output_gate import gate_fixture
 
-READY = "OFFSEASON_EXPLICIT_SOURCE_METADATA_AND_SCHEDULE_OUTPUT_GATE_V1_READY_WITH_PROVIDER_METADATA_GAPS"
-INVALID = "OFFSEASON_EXPLICIT_SOURCE_METADATA_AND_SCHEDULE_OUTPUT_GATE_V1_INVALID"
+READY = "OFFSEASON_EXPLICIT_SOURCE_PROVIDER_METADATA_AND_SCHEDULE_OUTPUT_GATE_V2_READY"
+INVALID = "OFFSEASON_EXPLICIT_SOURCE_PROVIDER_METADATA_AND_SCHEDULE_OUTPUT_GATE_V2_INVALID"
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -108,15 +108,15 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         "automationApproved", "reviewStatus", "rightsStatus", "active",
     }
     provider_required = {
-        "bookmakerId", "displayName", "sourceId", "active", "definitionStatus",
-        "supportedFormats", "dataScope",
+        "providerId", "bookmakerId", "displayName", "sourceId", "active",
+        "definitionStatus", "supportedFormats", "dataScope", "automationApproved",
     }
     source_gaps = {
         str(row.get("sourceId")): sorted(source_required - set(row))
         for row in sources if source_required - set(row)
     }
     provider_gaps = {
-        str(row.get("bookmakerId")): sorted(provider_required - set(row))
+        str(row.get("providerId")): sorted(provider_required - set(row))
         for row in providers if provider_required - set(row)
     }
 
@@ -139,12 +139,18 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
             mapping_method=first["mapping_method"],
         )
 
+    source_ids = {str(row.get("sourceId")) for row in sources}
     checks = {
         "source_registry_upgraded": source_doc.get("schemaVersion") == "v0.11-source-registry",
+        "provider_registry_upgraded": provider_doc.get("schemaVersion") == "v0.12-provider-registry",
         "source_metadata_complete": not source_gaps,
+        "provider_metadata_complete": not provider_gaps,
         "source_role_unchanged": all(row.get("automationApproved") is False for row in sources),
-        "provider_registry_preserved": provider_doc.get("schemaVersion") == "v0.3-bookmaker-registry",
-        "provider_gaps_explicit": bool(provider_gaps),
+        "provider_role_unchanged": all(row.get("automationApproved") is False for row in providers),
+        "provider_sources_exist": all(str(row.get("sourceId")) in source_ids for row in providers),
+        "provider_definition_source_label_only": all(row.get("definitionStatus") == "source_label_only" for row in providers),
+        "provider_formats_explicit": all(row.get("supportedFormats") == ["american"] for row in providers),
+        "provider_scope_explicit": all(row.get("dataScope") == ["owner_supplied_nba_futures_snapshots"] for row in providers),
         "output_gate_contract": contract.get("schemaVersion") == "schedule-adapter-output-gate-contract-v1",
         "fixture_mode_only": fixture.get("fixtureMode") is True,
         "accepted_count": gated["acceptedCount"] == 2,
@@ -168,7 +174,7 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
     }
     failed = sorted(name for name, passed in checks.items() if not passed)
     return {
-        "schemaVersion": "metadata-registry-output-gate-validation-report-v1",
+        "schemaVersion": "metadata-registry-output-gate-validation-report-v2",
         "validatedAt": utc_now(),
         "formalState": READY if not failed else INVALID,
         "checks": checks,

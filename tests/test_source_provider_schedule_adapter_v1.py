@@ -35,14 +35,23 @@ def test_duplicate_event_id_fails_closed():
     assert result["results"][1]["reason"] == "duplicate_event_id"
 
 
-def test_current_registries_remain_role_limited():
-    sources = load("config/source-registry.json")["sources"]
-    providers = load("config/bookmaker-registry.json")["bookmakers"]
+def test_current_registries_remain_role_limited_and_complete():
+    source_doc = load("config/source-registry.json")
+    provider_doc = load("config/bookmaker-registry.json")
+    sources = source_doc["sources"]
+    providers = provider_doc["bookmakers"]
     source_ids = {source["sourceId"] for source in sources}
+
+    assert source_doc["schemaVersion"] == "v0.11-source-registry"
+    assert provider_doc["schemaVersion"] == "v0.12-provider-registry"
     assert len(source_ids) == len(sources)
     assert all(source["automationApproved"] is False for source in sources)
     assert all(source["usageBoundary"].strip() for source in sources)
     assert all(provider["sourceId"] in source_ids for provider in providers)
+    assert all(provider["automationApproved"] is False for provider in providers)
+    assert all(provider["definitionStatus"] == "source_label_only" for provider in providers)
+    assert all(provider["supportedFormats"] == ["american"] for provider in providers)
+    assert all(provider["dataScope"] == ["owner_supplied_nba_futures_snapshots"] for provider in providers)
     assert all(provider["note"].strip() for provider in providers)
 
 
@@ -60,11 +69,11 @@ def test_aggregate_validator_report(tmp_path: Path):
         check=True,
     )
     report = json.loads(output.read_text(encoding="utf-8"))
-    assert report["formalState"] == (
-        "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS"
-    )
+    assert report["formalState"] == "OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_READY"
     assert report["checksFailed"] == 0
-    assert report["metadataQa"]["legacyMetadataUpgradeRequired"] is True
+    assert report["metadataQa"]["legacyMetadataUpgradeRequired"] is False
+    assert report["metadataQa"]["sourceRegistryUpgradeComplete"] is True
+    assert report["metadataQa"]["providerRegistryUpgradeComplete"] is True
     assert report["scheduleAdapter"]["statusCounts"] == {
         "candidate_unverified": 2,
         "quarantined": 2,
