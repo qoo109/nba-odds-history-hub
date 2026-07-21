@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "season-configuration-v1",
+  "seasonId": "2026-27",
+  "league": "NBA",
+  "configurationMode": "synthetic_preseason_dry_run",
+  "normalizedTimezone": "UTC",
+  "scheduleSourceId": "fixture_preseason_schedule",
+  "scheduleInputMode": "synthetic_fixture",
+  "mappingPolicy": "candidate_unverified_only",
+  "canonicalEventIdCreationAllowed": false,
+  "externalScheduleRead": false,
+  "productionScheduleImported": false,
+  "scheduledCollection": false,
+  "expectedObservationCount": 2,
+  "expectedFinalState": "preseason_dry_run_ready_awaiting_owner_approval"
+}
