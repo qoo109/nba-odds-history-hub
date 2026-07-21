@@ -4,14 +4,14 @@ Updated: 2026-07-21
 
 ## Current phase
 
-**V0.11 — Explicit source metadata and fixture schedule output gate ready; collection remains asleep**
+**V0.12 — Explicit source and provider metadata complete; fixture schedule output gate remains ready**
 
 This repository remains separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest V0.11 merge: a6e5b12c5ac9503bea606f209bda9df73782ad9f
+latest V0.12 merge: b511e4a2c25b452b5c7a5ae1eceb74b1449f2bc2
 current mode: offseason_sleep
 daily source-health schedule: 09:11 Asia/Taipei
 scheduled collection: false
@@ -32,52 +32,51 @@ movement-ready quote identities: 0
 - V0.8 schedule-import contract and deterministic synthetic event-mapping fixtures
 - V0.9 additive schedule-version tables, mapping-audit tables, helper functions, tests, and readiness page
 - V0.10 source/provider metadata gap audit, fixture schedule adapter, and aggregate mapping-status validation
-- V0.11 explicit source metadata fields, fixture-only output gate, additive persistence tests, and per-file test diagnostics
+- V0.11 explicit source metadata fields and fixture-only output gate
+- V0.12 explicit provider metadata fields and completed metadata validation
 
-## V0.11 validation evidence
+## V0.12 validation evidence
 
 ```text
-formal state: OFFSEASON_EXPLICIT_SOURCE_METADATA_AND_SCHEDULE_OUTPUT_GATE_V1_READY_WITH_PROVIDER_METADATA_GAPS
-merge commit: a6e5b12c5ac9503bea606f209bda9df73782ad9f
-validation workflow run: 29808510396
-validation artifact id: 8486429903
-validation artifact digest: sha256:2338024b3809ecd6b185d62ad765ef1ac0b57ac0fc3107c00cda8e6bdbeaec21
-checks: 21 / 21
-test workflow run: 29808510428
-test files: 11 / 11
+formal state 1: OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_READY
+formal state 2: OFFSEASON_EXPLICIT_SOURCE_PROVIDER_METADATA_AND_SCHEDULE_OUTPUT_GATE_V2_READY
+merge commit: b511e4a2c25b452b5c7a5ae1eceb74b1449f2bc2
+validation workflow run: 29810808509
+validation artifact id: 8487322908
+validation artifact digest: sha256:bc475505dbef497007326794d447edc838c7d6ff8e80e20a6ac2b4fc89e42acc
+metadata and adapter checks: 28 / 28
+output gate checks: 26 / 26
+test workflow run: 29810808595
+test status: success
 ```
 
 ## Metadata status
 
-Source registry upgrade:
+Source registry:
 
 ```text
 schema: v0.11-source-registry
 records: 1
-explicit active field: present
-explicit reviewStatus field: present
-explicit rightsStatus field: present
+missing explicit fields: 0
 automation approved: false
-new sources activated: 0
 upgrade complete: true
 ```
 
-The existing source remains manual-only. The metadata upgrade does not grant automated retrieval permission.
-
-Provider registry status:
+Provider registry:
 
 ```text
-schema: v0.3-bookmaker-registry
+schema: v0.12-provider-registry
 records: 1
-missing explicit fields:
-- definitionStatus
-- supportedFormats
-- dataScope
-new providers activated: 0
-upgrade complete: false
+provider ID: pinnacle
+definition status: source_label_only
+supported formats: american
+data scope: owner_supplied_nba_futures_snapshots
+automation approved: false
+missing explicit fields: 0
+upgrade complete: true
 ```
 
-These remaining fields are recorded as pending rather than inferred.
+The provider record remains a descriptive label for existing owner-supplied manual snapshots. The metadata upgrade does not add access capability, expand coverage claims, or activate collection.
 
 ## Fixture schedule output gate
 
@@ -94,16 +93,16 @@ verified events: 0
 multiple current schedule groups: 0
 ```
 
-Excluded aggregate reasons:
+Excluded aggregate reasons remain:
 
 ```text
 historical alias: 1
 unknown alias: 1
 same team: 1
-invalid id or time: 1
+invalid ID or time: 1
 ```
 
-An identical schedule write is idempotent and returns `exact_current_schedule_duplicate` without creating another version.
+An identical schedule write remains idempotent and creates no new version.
 
 ## Preserved earlier evidence
 
@@ -112,6 +111,7 @@ OFFSEASON_REFERENCE_FOUNDATION_V1_READY — 34 / 34
 OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY — 21 / 21
 OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY — 30 / 30
 OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS — 24 / 24
+OFFSEASON_EXPLICIT_SOURCE_METADATA_AND_SCHEDULE_OUTPUT_GATE_V1_READY_WITH_PROVIDER_METADATA_GAPS — 21 / 21
 ```
 
 ## Current real-data state
@@ -143,10 +143,10 @@ The request remains inactive during the offseason.
 ## Next unique mainline
 
 ```text
-OFFSEASON_PROVIDER_METADATA_EXPLICIT_UPGRADE_PENDING
+OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_SYNC
 ```
 
-The next safe task is a separately reviewed, backwards-compatible provider metadata upgrade. It must not change the manual-only source role, activate collection, import a production schedule, or create canonical event IDs.
+The next safe task is to generate a privacy-safe aggregate metadata export and connect it to the offseason readiness dashboard. It must use repository metadata and synthetic fixtures only, without external retrieval or production imports.
 
 ## Safety boundary
 
@@ -154,5 +154,5 @@ The next safe task is a separately reviewed, backwards-compatible provider metad
 - No access-control or website-policy bypass.
 - No large changing archives committed publicly.
 - No automatic write to `qoo109/nba-value-lab`.
-- No external schedule retrieval in V0.11.
+- No external schedule retrieval in V0.12.
 - No scheduled collection during offseason sleep mode.
