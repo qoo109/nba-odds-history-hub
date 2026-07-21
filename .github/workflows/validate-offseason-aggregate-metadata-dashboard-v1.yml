@@ -1,0 +1,83 @@
+name: Validate offseason aggregate metadata dashboard v1
+
+on:
+  pull_request:
+    paths:
+      - "config/nba-team-registry-v1.json"
+      - "config/market-taxonomy-v1.json"
+      - "config/source-registry.json"
+      - "config/bookmaker-registry.json"
+      - "config/offseason-capture-readiness-v1.json"
+      - "data/phase2-odds-capture-request-v1.json"
+      - "data/fixtures/official-schedule-adapter-v1.json"
+      - "data/public/offseason-metadata-readiness-v1.json"
+      - "scripts/build_offseason_aggregate_metadata_export_v1.py"
+      - "tests/test_offseason_aggregate_metadata_export_v1.py"
+      - "readiness.html"
+      - "docs/offseason-aggregate-metadata-dashboard-v1.md"
+      - ".github/workflows/validate-offseason-aggregate-metadata-dashboard-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-offseason-aggregate-metadata-dashboard-v1-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  aggregate-dashboard-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Compile builder
+        run: python -m py_compile scripts/build_offseason_aggregate_metadata_export_v1.py
+      - name: Run focused tests
+        run: pytest -q tests/test_offseason_aggregate_metadata_export_v1.py
+      - name: Rebuild aggregate export
+        run: |
+          python scripts/build_offseason_aggregate_metadata_export_v1.py \
+            --as-of 2026-07-21 \
+            --output /tmp/offseason-metadata-readiness-v1.json
+          cmp /tmp/offseason-metadata-readiness-v1.json data/public/offseason-metadata-readiness-v1.json
+      - name: Enforce dashboard and privacy boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("data/public/offseason-metadata-readiness-v1.json").read_text())
+          page = Path("readiness.html").read_text()
+          assert report["formalState"] == "OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_V1_READY"
+          assert report["validation"]["checksPassed"] == report["validation"]["checksTotal"] == 25
+          assert report["validation"]["checksFailed"] == 0
+          assert report["summary"]["metadataMissingFields"] == 0
+          assert report["summary"]["automationApprovals"] == 0
+          assert report["summary"]["activeCadenceTemplates"] == 0
+          assert report["scheduleFixture"]["acceptedCount"] == 2
+          assert report["scheduleFixture"]["excludedCount"] == 4
+          assert report["scheduleFixture"]["canonicalEventIdsCreated"] == 0
+          assert report["collectionState"]["phase2ApprovalGranted"] is False
+          assert report["collectionState"]["phase2ExecutionEnabled"] is False
+          assert report["privacyBoundary"]["aggregateOnly"] is True
+          assert report["privacyBoundary"]["rowLevelRecordsIncluded"] is False
+          assert report["privacyBoundary"]["networkCallsMade"] is False
+          assert report["privacyBoundary"]["crossRepositoryWrite"] is False
+          assert "data/public/offseason-metadata-readiness-v1.json" in page
+          assert "V0.13" in page
+          assert "pinnacle" not in json.dumps(report).lower()
+          assert "fixture_official_schedule" not in json.dumps(report).lower()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offseason-aggregate-metadata-dashboard-v1
+          path: data/public/offseason-metadata-readiness-v1.json
+          if-no-files-found: error
+          retention-days: 14
