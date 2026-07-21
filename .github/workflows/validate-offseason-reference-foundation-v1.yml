@@ -1,0 +1,74 @@
+name: Validate offseason reference foundation v1
+
+on:
+  pull_request:
+    paths:
+      - "config/nba-team-registry-v1.json"
+      - "config/market-taxonomy-v1.json"
+      - "config/offseason-capture-readiness-v1.json"
+      - "scripts/validate_offseason_reference_foundation_v1.py"
+      - "docs/offseason-reference-foundation-v1.md"
+      - ".github/workflows/validate-offseason-reference-foundation-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-offseason-reference-foundation-v1-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  reference-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_offseason_reference_foundation_v1.py
+
+      - name: Validate reference data and self-tests
+        run: |
+          python scripts/validate_offseason_reference_foundation_v1.py \
+            --self-test \
+            --output runtime/reports/offseason_reference_foundation_v1.json
+
+      - name: Enforce static-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("runtime/reports/offseason_reference_foundation_v1.json")
+          report = json.loads(path.read_text(encoding="utf-8"))
+          assert report["formalState"] == "OFFSEASON_REFERENCE_FOUNDATION_V1_READY"
+          assert report["checksFailed"] == 0
+          assert report["summary"]["teamCount"] == 30
+          assert report["summary"]["eastTeams"] == 15
+          assert report["summary"]["westTeams"] == 15
+          assert report["summary"]["divisionCount"] == 6
+          assert report["summary"]["activeCadenceTemplates"] == 0
+          assert report["quality"]["networkCallsMade"] is False
+          assert report["quality"]["liveOddsCaptured"] is False
+          assert report["quality"]["sourcePayloadsRead"] is False
+          assert report["quality"]["rawRowsEmitted"] == 0
+          assert report["quality"]["rawFilesEmitted"] is False
+          assert report["quality"]["nbaValueLabModified"] is False
+          assert report["quality"]["formalStake"] == 0
+          PY
+
+      - name: Upload aggregate validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: offseason-reference-foundation-v1
+          path: runtime/reports/offseason_reference_foundation_v1.json
+          if-no-files-found: error
+          retention-days: 14
