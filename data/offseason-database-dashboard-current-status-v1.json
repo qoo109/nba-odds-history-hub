@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "offseason-database-dashboard-current-status-v1",
+  "updatedAt": "2026-07-21T13:35:00+08:00",
+  "formalState": "OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY",
+  "mergeCommit": "2803e9f1edaca34dbe595b90ce89a672f3878623",
+  "workflowRunId": 29804012066,
+  "artifactId": 8484784752,
+  "artifactDigest": "sha256:cc7de32c80e06173d60124a696d4c837d0c75562171052eabcde71dad6c15c51",
+  "checksPassed": 30,
+  "checksTotal": 30,
+  "checksFailed": 0,
+  "pytestRunId": 29804012062,
+  "pytestStatus": "success",
+  "assets": {
+    "schema": "sql/schema.sql",
+    "mappingModule": "src/nba_odds_history_hub/mapping.py",
+    "tests": "tests/test_offseason_mapping_database.py",
+    "validator": "scripts/validate_offseason_database_dashboard_v1.py",
+    "readinessData": "data/public/offseason-readiness.json",
+    "readinessPage": "readiness.html",
+    "documentation": "docs/offseason-database-dashboard-v1.md",
+    "workflow": ".github/workflows/validate-offseason-database-dashboard-v1.yml"
+  },
+  "databaseFixture": {
+    "requiredTables": 2,
+    "requiredViews": 2,
+    "sourceEvents": 2,
+    "scheduleVersions": 3,
+    "currentSchedules": 2,
+    "mappingDecisions": 2,
+    "verifiedEvents": 1,
+    "multipleCurrentScheduleGroups": 0
+  },
+  "currentMode": "offseason_sleep",
+  "productionScheduleImported": false,
+  "externalCollectionActive": false,
+  "networkCallsMade": false,
+  "rawRowsEmitted": 0,
+  "rawFilesEmitted": false,
+  "crossRepositoryWrite": false
+}
