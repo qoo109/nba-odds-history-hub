@@ -1,13 +1,45 @@
 {
-  "schemaVersion": "offseason-readiness-v1",
+  "schemaVersion": "offseason-readiness-v2",
   "fixtureMode": true,
   "currentMode": "offseason_sleep",
-  "summary": {
+  "collection": {
+    "scheduled": false,
+    "phase2ApprovalGranted": false,
+    "externalScheduleRead": false,
+    "productionScheduleImported": false
+  },
+  "reference": {
     "teams": 30,
     "marketClasses": 11,
-    "mappingCases": 5,
-    "databaseTables": 2,
-    "databaseViews": 2,
-    "activeTemplates": 0
+    "sourceRecords": 1,
+    "providerRecords": 1,
+    "sourceMetadataComplete": true,
+    "providerMetadataComplete": true,
+    "activeCadenceTemplates": 0
+  },
+  "mapping": {
+    "fixtureCases": 6,
+    "acceptedCandidateUnverified": 2,
+    "excluded": 4,
+    "scheduleVersionsInserted": 2,
+    "mappingAuditDecisionsWritten": 2,
+    "canonicalEventsCreated": 0,
+    "verifiedEvents": 0,
+    "multipleCurrentScheduleGroups": 0
+  },
+  "realData": {
+    "snapshots": 1,
+    "futuresMarkets": 5,
+    "quoteIdentities": 91,
+    "movementReadyQuoteIdentities": 0,
+    "canonicalMappingCoveragePercent": 0,
+    "multiObservationHistoryReady": false
+  },
+  "quality": {
+    "aggregateOnly": true,
+    "rowLevelRecordsIncluded": false,
+    "rawFilesIncluded": false,
+    "networkCallsMade": false,
+    "crossRepositoryWrite": false
   }
 }
