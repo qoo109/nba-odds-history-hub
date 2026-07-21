@@ -4,14 +4,14 @@ Updated: 2026-07-21
 
 ## Current phase
 
-**V0.8 — Offseason schedule and event-mapping contracts ready; collection remains asleep**
+**V0.9 — Offseason database contracts and readiness dashboard are ready; collection remains asleep**
 
 This repository remains separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest schedule-mapping merge: 4655e51579b4607e6f71096a062f073753359620
+latest V0.9 merge: 2803e9f1edaca34dbe595b90ce89a672f3878623
 current mode: offseason_sleep
 daily source-health schedule: 09:11 Asia/Taipei
 scheduled collection: false
@@ -30,6 +30,7 @@ movement-ready quote identities: 0
 - V0.6 disabled one-time Phase 2 request packet
 - V0.7 canonical team registry, market taxonomy, event-identity policy, and dormant cadence templates
 - V0.8 schedule-import contract and deterministic synthetic event-mapping fixtures
+- V0.9 additive schedule-version tables, mapping-audit tables, helper functions, tests, and readiness page
 
 ## Offseason reference foundation
 
@@ -44,15 +45,6 @@ market classes: 11
 active cadence templates: 0
 ```
 
-Assets:
-
-```text
-config/nba-team-registry-v1.json
-config/market-taxonomy-v1.json
-config/offseason-capture-readiness-v1.json
-data/offseason-reference-foundation-current-status-v1.json
-```
-
 ## Offseason schedule mapping
 
 ```text
@@ -61,34 +53,59 @@ workflow run: 29800088012
 artifact id: 8483412043
 artifact digest: sha256:bb35c2c983d0241fa27cc050110b1358b561e14214015f47aa2fb45082a88b04
 checks: 21 / 21
-fixture cases: 5
-verified fixture-only: 1
-candidate unverified: 1
-quarantined: 2
-rejected: 1
+fixture cases: 5 / 5
 ```
 
-Assets:
+## Offseason database and dashboard
 
 ```text
-config/schedule-import-contract-v1.json
-data/fixtures/offseason-schedule-mapping-v1.json
-data/offseason-schedule-mapping-current-status-v1.json
-scripts/validate_offseason_schedule_mapping_v1.py
-docs/offseason-schedule-mapping-v1.md
+formal state: OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY
+workflow run: 29804012066
+artifact id: 8484784752
+artifact digest: sha256:cc7de32c80e06173d60124a696d4c837d0c75562171052eabcde71dad6c15c51
+checks: 30 / 30
+pytest run: 29804012062
+pytest status: success
 ```
 
-## Identity rules
+Database additions:
 
-- Current aliases may create an unverified candidate only.
-- Historical aliases require season validation.
-- Unknown aliases are quarantined.
-- Identical home and away teams are rejected.
+```text
+source_event_schedule_versions
+source_event_mapping_audit
+current_source_event_schedules
+source_event_mapping_status_summary
+```
+
+Validated fixture summary:
+
+```text
+source events: 2
+schedule versions: 3
+current schedules: 2
+mapping decisions: 2
+verified events: 1
+multiple current schedule groups: 0
+```
+
+Public readiness assets:
+
+```text
+readiness.html
+data/public/offseason-readiness.json
+data/offseason-database-dashboard-current-status-v1.json
+```
+
+## Identity and versioning rules
+
 - Source event ID and timezone-aware scheduled time are mandatory.
-- Canonical event ID may remain null until explicitly verified.
-- Exact candidate key is scheduled date + home team + away team.
-- Fuzzy, score-assisted, and many-to-many mapping are disabled.
-- Schedule changes create a new version and preserve the prior value.
+- Exact-current schedule duplicates are skipped.
+- Schedule changes create a new preserved version.
+- Only one current schedule version may exist per source event.
+- Verified mappings require an existing canonical event ID.
+- Rejected, quarantined, and unmapped states cannot retain a canonical ID.
+- Invalid hashes, naive timestamps, unknown methods, and same-team events fail closed.
+- Mapping decisions retain previous state, new state, reason, actor, and decision time.
 
 ## Current data validation
 
@@ -118,10 +135,10 @@ The request remains inactive during the offseason.
 ## Next unique mainline
 
 ```text
-OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES
+OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_CONTRACT
 ```
 
-The next safe work is additive database mapping tables, metadata QA, mapping-status exports, and dashboard readiness fixtures.
+The next safe work is source/provider metadata QA, adapter contracts for a future official schedule import, and aggregate mapping-status exports. It does not require external collection now.
 
 ## Safety boundary
 
