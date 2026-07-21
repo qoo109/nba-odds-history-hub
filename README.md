@@ -4,7 +4,7 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.12 — Explicit source and provider metadata complete; collection remains asleep.**
+**V0.13 — Privacy-safe aggregate metadata export and readiness dashboard ready; collection remains asleep.**
 
 Current operating layers:
 
@@ -31,7 +31,12 @@ Current operating layers:
    - fixture-only schedule normalization
    - additive candidate persistence
    - no new source or provider activation
-6. **Phase 2 collection**
+6. **Aggregate readiness export**
+   - deterministic repository-only JSON builder
+   - aggregate counts and readiness booleans
+   - no named source/provider records or row-level events
+   - synced static readiness dashboard
+7. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
    - requires separate explicit approval and reviewed configuration
    - no recurring collection schedule is active
@@ -54,10 +59,11 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - schedule-import contract v1
 - deterministic schedule-mapping fixtures v1
 - schedule-version and mapping-audit database layer v1
-- static offseason readiness dashboard
 - explicit source metadata registry v0.11
 - explicit provider metadata registry v0.12
 - fixture-only schedule output gate v2
+- aggregate metadata/readiness export v1
+- aggregate readiness dashboard v1
 
 ## Reference and status assets
 
@@ -70,42 +76,59 @@ config/source-provider-metadata-contract-v1.json
 config/official-schedule-adapter-contract-v1.json
 config/source-registry.json
 config/bookmaker-registry.json
-data/offseason-reference-foundation-current-status-v1.json
-data/offseason-schedule-mapping-current-status-v1.json
-data/offseason-database-dashboard-current-status-v1.json
-data/offseason-provider-schedule-adapter-current-status-v1.json
-data/fixtures/offseason-schedule-mapping-v1.json
-data/fixtures/official-schedule-adapter-v1.json
 data/public/offseason-readiness.json
+data/public/offseason-metadata-readiness-v1.json
+data/offseason-aggregate-metadata-dashboard-current-status-v1.json
+scripts/build_offseason_aggregate_metadata_export_v1.py
 readiness.html
 ```
 
-## Validation results
+## Current validation
 
 ```text
-OFFSEASON_REFERENCE_FOUNDATION_V1_READY
-34 / 34 checks passed
-
-OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY
-21 / 21 checks passed
-
-OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY
-30 / 30 checks passed
-
 OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_READY
 28 / 28 checks passed
 
 OFFSEASON_EXPLICIT_SOURCE_PROVIDER_METADATA_AND_SCHEDULE_OUTPUT_GATE_V2_READY
 26 / 26 checks passed
 
-validation workflow run: 29810808509
-test workflow run: 29810808595
-artifact id: 8487322908
+OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_V1_READY
+25 / 25 checks passed
+
+V0.13 validation workflow: 29812604778
+V0.13 test workflow: 29812604707
+V0.13 compatibility workflow: 29812604790
+V0.13 artifact: 8488029509
 ```
+
+## Aggregate export
+
+Build the public aggregate JSON:
+
+```bash
+python scripts/build_offseason_aggregate_metadata_export_v1.py \
+  --as-of 2026-07-21 \
+  --output data/public/offseason-metadata-readiness-v1.json
+```
+
+The export includes:
+
+```text
+teams: 30
+market classes: 11
+sources: 1
+providers: 1
+metadata missing fields: 0
+automation approvals: 0
+active cadence templates: 0
+fixture schedule games: 6
+```
+
+The export contains aggregate categories and readiness booleans only. It does not publish named source/provider records, event IDs, event rows, price rows, or external payload content.
 
 ## Metadata boundary
 
-The existing source remains manual-only. The existing provider record is classified as `source_label_only`, supports the explicit `american` format field, and is limited to `owner_supplied_nba_futures_snapshots`.
+The existing source remains manual-only. The existing provider remains a descriptive `source_label_only` record for owner-supplied futures snapshots.
 
 ```text
 new sources activated: 0
@@ -116,7 +139,7 @@ external schedule read: false
 production schedule imported: false
 ```
 
-These fields document the existing evidence. They do not authorize new access or expand data coverage claims.
+These fields document existing evidence. They do not authorize new access or expand data coverage claims.
 
 ## Quick start
 
@@ -125,19 +148,10 @@ python -m pip install -e ".[dev]"
 pytest -q
 ```
 
-Validate explicit metadata and the fixture schedule adapter:
+Validate the aggregate export:
 
 ```bash
-python scripts/validate_source_provider_schedule_adapter_v1.py \
-  --self-test \
-  --output /tmp/source-provider-schedule-adapter-v2.json
-```
-
-Validate the fixture output gate:
-
-```bash
-python scripts/validate_metadata_registry_output_gate_v1.py \
-  --output /tmp/schedule-output-gate-v2.json
+pytest -q tests/test_offseason_aggregate_metadata_export_v1.py
 ```
 
 Validate an incoming package:
@@ -166,6 +180,7 @@ odds-hub-import \
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
 - [`readiness.html`](readiness.html)
+- [`docs/offseason-aggregate-metadata-dashboard-v1.md`](docs/offseason-aggregate-metadata-dashboard-v1.md)
 - [`docs/provider-metadata-upgrade-v1.md`](docs/provider-metadata-upgrade-v1.md)
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
 - [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
@@ -178,6 +193,6 @@ odds-hub-import \
 
 ## Public repository boundary
 
-Large or continuously changing raw data, complete SQLite databases, private credentials, cookies, authorization headers, HAR files, and account exports do not belong in the public repository.
+Large or continuously changing raw data, complete SQLite databases, private browser material, HAR files, and account exports do not belong in the public repository.
 
 The repository keeps code, schemas, manifests, QA reports, documentation, tests, and small privacy-safe samples. Large data and current backups belong in owner-controlled storage or short-lived GitHub Actions Artifacts.
