@@ -36,6 +36,10 @@ def test_owner_review_packet_is_complete_and_disabled():
     assert report["evidence"]["postRollbackTotalRows"] == 0
 
 
+def test_committed_status_is_deterministic():
+    assert load("data/preseason-owner-review-current-status-v1.json") == build_review_report(ROOT)
+
+
 def test_command_plan_is_control_steps_not_a_runnable_command():
     report = build_review_report(ROOT)
     plan = report["commandPlan"]
@@ -46,8 +50,10 @@ def test_command_plan_is_control_steps_not_a_runnable_command():
     assert plan["implementationModulePresent"] is False
     assert plan["controlStepCount"] == 6
     assert plan["requiredPlaceholderCount"] == 5
-    assert all(value in (False, 0, True) for value in report["boundary"].values())
     assert report["boundary"]["fixtureOnly"] is True
+    assert report["boundary"]["externalFilesRead"] is False
+    assert report["boundary"]["productionDatabaseTouched"] is False
+    assert report["boundary"]["productionScheduleImported"] is False
     assert report["boundary"]["executionCount"] == 0
 
 
