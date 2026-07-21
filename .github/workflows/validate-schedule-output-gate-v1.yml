@@ -27,8 +27,12 @@ jobs:
           python-version: "3.12"
       - name: Install
         run: python -m pip install -e ".[dev]"
-      - name: Run existing adapter tests
-        run: pytest -q tests/test_source_provider_schedule_adapter_v1.py
+      - name: Adapter fixture outcomes
+        run: pytest -q tests/test_source_provider_schedule_adapter_v1.py::test_schedule_adapter_fixture_outcomes
+      - name: Adapter duplicate event
+        run: pytest -q tests/test_source_provider_schedule_adapter_v1.py::test_duplicate_event_id_fails_closed
+      - name: Registry role boundary
+        run: pytest -q tests/test_source_provider_schedule_adapter_v1.py::test_current_registries_remain_role_limited
       - name: Run output gate tests
         run: pytest -q tests/test_schedule_adapter_output_gate_v1.py
       - name: Build aggregate report
