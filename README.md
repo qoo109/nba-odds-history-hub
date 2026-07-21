@@ -4,7 +4,7 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.16 — Public JSON Schema declarations and deterministic integrity manifest ready; collection remains asleep.**
+**V0.17 — Preseason schedule dry-run gate ready; collection remains asleep.**
 
 Current operating layers:
 
@@ -34,12 +34,16 @@ Current operating layers:
    - aggregate counts and readiness booleans
 7. **Public release governance**
    - versioned release manifest
-   - legacy/current compatibility tests
-   - static release index
-   - deterministic contract drift report
+   - static release index and contract drift report
    - Draft 2020-12 JSON Schema declarations
    - deterministic SHA-256 integrity manifest
-8. **Phase 2 collection**
+8. **Preseason dry run**
+   - season configuration and readiness contract
+   - two synthetic schedule observations
+   - mapping audit and schedule-version persistence
+   - schedule revision and idempotent replay checks
+   - final state remains awaiting owner approval
+9. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
    - requires a separate explicit decision
    - no recurring collection schedule is active
@@ -59,16 +63,15 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - market taxonomy v1
 - schedule-import contract and mapping fixtures v1
 - schedule-version and mapping-audit database layer v1
-- explicit source metadata registry v0.11
-- explicit provider metadata registry v0.12
+- explicit source and provider metadata
 - fixture-only schedule output gate v2
 - aggregate metadata/readiness export v1
 - aggregate readiness dashboard v1
 - public readiness release manifest v1
 - public contract drift report v1
 - static release index
-- three public JSON Schema declarations
-- deterministic public integrity manifest v1
+- public JSON Schema declarations and integrity manifest
+- preseason schedule dry-run gate v1
 - automated tests and GitHub Actions
 
 ## Public status pages
@@ -76,28 +79,43 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - [`readiness.html`](readiness.html) — aggregate offseason readiness
 - [`release-index.html`](release-index.html) — public contract versions and drift status
 
-## Public declarations and integrity assets
+## Preseason dry-run assets
 
 ```text
-schemas/public/readiness-release-manifest-v1.schema.json
-schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json
-schemas/public/public-contract-drift-report-v1.schema.json
-data/public/public-governance-checksums-v1.json
-scripts/build_public_governance_checksums_v1.py
+config/preseason-readiness-v1.json
+config/season-configuration-v1.json
+data/fixtures/preseason-dry-run-v1.json
+data/preseason-dry-run-current-status-v1.json
+src/nba_odds_history_hub/preseason_dry_run.py
+scripts/validate_preseason_dry_run_v1.py
 ```
 
-Declaration map:
+Current dry-run result:
 
 ```text
-data/public/readiness-release-manifest-v1.json
-  -> schemas/public/readiness-release-manifest-v1.schema.json
-
-data/public/offseason-metadata-readiness-v1.json
-  -> schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json
-
-data/public/readiness-contract-drift-report-v1.json
-  -> schemas/public/public-contract-drift-report-v1.schema.json
+formal state: OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES_V1_READY
+checks: 15 / 15
+observations: 2
+accepted rows: 5
+excluded rows: 2
+source events: 3
+schedule versions: 5
+current schedules: 3
+audit decisions: 5
+canonical IDs created: 0
+production rows written: 0
 ```
+
+State sequence:
+
+```text
+offseason_sleep
+-> preseason_dry_run_config_valid
+-> preseason_dry_run_partial
+-> preseason_dry_run_ready_awaiting_owner_approval
+```
+
+The last state is simulated readiness only. It does not authorize external retrieval, production import or recurring collection.
 
 ## Current validation
 
@@ -112,11 +130,14 @@ OFFSEASON_PUBLIC_CONTRACT_DRIFT_REPORT_V1_READY
 OFFSEASON_PUBLIC_JSON_SCHEMA_AND_CHECKSUM_MANIFEST_V1_READY
 3 schema declarations
 8 integrity assets
-sha256
 
-V0.16 focused workflow: 29840324365
-V0.16 full test workflow: 29840324295
-V0.16 artifact: 8499063803
+OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES_V1_READY
+15 / 15 checks passed
+
+V0.17 focused workflow: 29842819060
+V0.17 full test workflow: 29842819689
+V0.17 public-schema workflow: 29842820112
+V0.17 artifact: 8500060347
 ```
 
 ## Rebuild validation assets
@@ -143,13 +164,18 @@ python scripts/build_public_governance_checksums_v1.py \
   --output data/public/public-governance-checksums-v1.json
 ```
 
-Run focused governance tests:
+Run the preseason dry run:
 
 ```bash
-pytest -q \
-  tests/test_public_readiness_contracts.py \
-  tests/test_readiness_release_index_drift_v1.py \
-  tests/test_public_contract_schema_checksums_v1.py
+python scripts/validate_preseason_dry_run_v1.py \
+  --output runtime/reports/preseason-dry-run-v1.json
+```
+
+Run all tests:
+
+```bash
+python -m pip install -e ".[dev]"
+pytest -q
 ```
 
 ## Current aggregate state
@@ -162,7 +188,7 @@ providers: 1
 metadata missing fields: 0
 automation approvals: 0
 active cadence templates: 0
-fixture schedule games: 6
+contract drift count: 0
 ```
 
 ## Current execution boundary
@@ -170,12 +196,12 @@ fixture schedule games: 6
 ```text
 new sources activated: 0
 new providers activated: 0
-source automation approved: false
-provider automation approved: false
 external schedule read: false
 production schedule imported: false
 scheduled collection: false
 Phase 2 approval granted: false
+canonical event IDs created by dry run: 0
+production rows written by dry run: 0
 ```
 
 ## Quick start
@@ -194,11 +220,11 @@ odds-hub-validate-intake --package-dir data/incoming/example
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
+- [`docs/preseason-dry-run-v1.md`](docs/preseason-dry-run-v1.md)
 - [`docs/public-data-declarations-v1.md`](docs/public-data-declarations-v1.md)
 - [`docs/static-release-index-drift-v1.md`](docs/static-release-index-drift-v1.md)
 - [`docs/readiness-release-v1.md`](docs/readiness-release-v1.md)
 - [`docs/offseason-aggregate-metadata-dashboard-v1.md`](docs/offseason-aggregate-metadata-dashboard-v1.md)
-- [`docs/provider-metadata-upgrade-v1.md`](docs/provider-metadata-upgrade-v1.md)
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
 - [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
 - [`docs/offseason-database-dashboard-v1.md`](docs/offseason-database-dashboard-v1.md)
