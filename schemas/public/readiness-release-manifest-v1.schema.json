@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qoo109.github.io/nba-odds-history-hub/schemas/public/readiness-release-manifest-v1.schema.json",
+  "title": "Public Readiness Release Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "releaseVersion", "asOf", "currentMode", "contracts", "releaseBoundary"],
+  "properties": {
+    "schemaVersion": {"const": "readiness-release-manifest-v1"},
+    "releaseVersion": {"const": "v0.14"},
+    "asOf": {"type": "string", "format": "date"},
+    "currentMode": {"const": "offseason_sleep"},
+    "contracts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["contractId", "path", "schemaVersion", "compatibility", "fixtureOnly"],
+        "properties": {
+          "contractId": {"enum": ["legacy-readiness", "aggregate-readiness"]},
+          "path": {"enum": ["data/public/offseason-readiness.json", "data/public/offseason-metadata-readiness-v1.json"]},
+          "schemaVersion": {"enum": ["offseason-readiness-v1", "offseason-aggregate-metadata-readiness-v1"]},
+          "compatibility": {"enum": ["supported", "current"]},
+          "fixtureOnly": {"const": true}
+        }
+      },
+      "allOf": [
+        {"contains": {"type": "object", "properties": {"contractId": {"const": "legacy-readiness"}}, "required": ["contractId"]}, "minContains": 1, "maxContains": 1},
+        {"contains": {"type": "object", "properties": {"contractId": {"const": "aggregate-readiness"}}, "required": ["contractId"]}, "minContains": 1, "maxContains": 1}
+      ]
+    },
+    "releaseBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repositoryOnly", "aggregateOnly", "collectionActivated", "productionScheduleImported", "networkCallsMade", "externalFilesRead", "crossRepositoryWrite"],
+      "properties": {
+        "repositoryOnly": {"const": true},
+        "aggregateOnly": {"const": true},
+        "collectionActivated": {"const": false},
+        "productionScheduleImported": {"const": false},
+        "networkCallsMade": {"const": false},
+        "externalFilesRead": {"const": false},
+        "crossRepositoryWrite": {"const": false}
+      }
+    }
+  }
+}

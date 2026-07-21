@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qoo109.github.io/nba-odds-history-hub/schemas/public/public-contract-drift-report-v1.schema.json",
+  "title": "Public Contract Drift Report v1",
+  "type": "object",
+  "required": ["schemaVersion", "asOf", "releaseVersion", "formalState", "checks", "checksPassed", "checksTotal", "checksFailed", "failedChecks", "driftCount", "contracts", "sharedFieldComparisons", "releaseBoundary", "quality"],
+  "properties": {
+    "schemaVersion": {"const": "public-contract-drift-report-v1"},
+    "asOf": {"type": "string", "format": "date"},
+    "releaseVersion": {"const": "v0.14"},
+    "formalState": {"type": "string"},
+    "checks": {"type": "object"},
+    "checksPassed": {"type": "integer", "minimum": 0},
+    "checksTotal": {"const": 9},
+    "checksFailed": {"type": "integer", "minimum": 0},
+    "failedChecks": {"type": "array", "items": {"type": "string"}},
+    "driftCount": {"type": "integer", "minimum": 0},
+    "contracts": {"type": "array", "minItems": 2},
+    "sharedFieldComparisons": {"type": "array", "minItems": 4},
+    "releaseBoundary": {"type": "object"},
+    "quality": {"type": "object"}
+  }
+}
