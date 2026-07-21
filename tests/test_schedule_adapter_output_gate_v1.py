@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from nba_odds_history_hub.database import register_source, register_source_events
-from nba_odds_history_hub.schedule_mapping import (
+from nba_odds_history_hub.mapping import (
     build_mapping_readiness_report,
     record_mapping_decision,
     record_schedule_version,
