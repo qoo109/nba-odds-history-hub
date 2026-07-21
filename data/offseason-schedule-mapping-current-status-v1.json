@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "offseason-schedule-mapping-current-status-v1",
+  "updatedAt": "2026-07-21T12:10:00+08:00",
+  "formalState": "OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY",
+  "mergeCommit": "4655e51579b4607e6f71096a062f073753359620",
+  "workflowRunId": 29800088012,
+  "artifactId": 8483412043,
+  "artifactDigest": "sha256:bb35c2c983d0241fa27cc050110b1358b561e14214015f47aa2fb45082a88b04",
+  "checksPassed": 21,
+  "checksTotal": 21,
+  "checksFailed": 0,
+  "assets": {
+    "contract": "config/schedule-import-contract-v1.json",
+    "fixtures": "data/fixtures/offseason-schedule-mapping-v1.json",
+    "validator": "scripts/validate_offseason_schedule_mapping_v1.py",
+    "documentation": "docs/offseason-schedule-mapping-v1.md",
+    "workflow": ".github/workflows/validate-offseason-schedule-mapping-v1.yml"
+  },
+  "fixtureSummary": {
+    "cases": 5,
+    "verified": 1,
+    "candidateUnverified": 1,
+    "quarantined": 2,
+    "rejected": 1,
+    "allPassed": true
+  },
+  "currentMode": "offseason_sleep",
+  "scheduleImported": false,
+  "externalCollectionActive": false,
+  "networkCallsMade": false,
+  "sourceScheduleRead": false,
+  "rawRowsEmitted": 0,
+  "rawFilesEmitted": false,
+  "crossRepositoryWrite": false
+}
