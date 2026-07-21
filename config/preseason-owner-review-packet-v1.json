@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "preseason-owner-review-packet-v1",
+  "asOf": "2026-07-21",
+  "packetId": "SCHEDULE-OWNER-REVIEW-2026-07-21-001",
+  "state": "review_ready_disabled",
+  "sourcePreflightRequestId": "SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001",
+  "sourcePreflightFormalState": "OFFSEASON_PRESEASON_MANUAL_SCHEDULE_IMPORT_PREFLIGHT_AND_ROLLBACK_V1_READY",
+  "evidence": {
+    "targetFile": {
+      "path": "data/fixtures/preseason-dry-run-v1.json",
+      "filename": "preseason-dry-run-v1.json",
+      "bytes": 2204,
+      "sha256": "1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512",
+      "schemaVersion": "preseason-dry-run-fixture-v1",
+      "seasonId": "2026-27"
+    },
+    "checksPassed": 19,
+    "checksTotal": 19,
+    "artifact": {
+      "id": 8500959742,
+      "digest": "sha256:cd398c5a3bba096b1f5ba392bb47c8afff766be66a2d955a267d0360bfd4d654"
+    },
+    "rollback": {
+      "executed": true,
+      "allPreviewRowsRemoved": true,
+      "postRollbackTotalRows": 0
+    }
+  },
+  "ownerDecision": {
+    "decisionRequested": false,
+    "decisionRecorded": false,
+    "approvalGranted": false,
+    "approvalRequiresSeparateRequest": true,
+    "allowedCurrentDecisions": [
+      "keep_disabled",
+      "request_new_synthetic_review"
+    ]
+  },
+  "executionBoundary": {
+    "fixtureOnly": true,
+    "executionEnabled": false,
+    "maximumExecutionCount": 0,
+    "externalFileAllowed": false,
+    "productionDatabaseAllowed": false,
+    "productionImportAllowed": false,
+    "networkCallsAllowed": false,
+    "scheduledCollectionAllowed": false,
+    "canonicalEventIdCreationAllowed": false,
+    "crossRepositoryWriteAllowed": false,
+    "rowLevelRecordsAllowed": false
+  }
+}
