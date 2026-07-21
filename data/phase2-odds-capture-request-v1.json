@@ -1,0 +1,87 @@
+{
+  "schema_version": "phase2-odds-capture-request-v1",
+  "request_id": "ODDS-PHASE2-CAPTURE-2026-07-21-001",
+  "repository_scope": "qoo109/nba-odds-history-hub",
+  "request_state": "AWAITING_EXPLICIT_OWNER_APPROVAL",
+  "approval_granted": false,
+  "execution_enabled": false,
+  "maximum_execution_count": 1,
+  "execution_count": 0,
+  "execution_mode": "manual_workflow_dispatch_only",
+  "workflow": ".github/workflows/full-automation.yml",
+  "required_dispatch_inputs": {
+    "enable_odds_capture": true,
+    "dry_run": false
+  },
+  "required_repository_secrets": [
+    "ODDS_MATCHUPS_URL",
+    "ODDS_STRAIGHT_URL"
+  ],
+  "secret_values_committed_to_repository": false,
+  "source_approval": {
+    "owner_approved_urls_required": true,
+    "lawful_free_or_public_source_required": true,
+    "paid_source_allowed": false,
+    "login_required_source_allowed": false,
+    "cookie_or_session_access_allowed": false,
+    "authorization_header_or_token_allowed": false,
+    "har_or_account_export_allowed": false,
+    "captcha_bypass_allowed": false,
+    "geo_restriction_bypass_allowed": false,
+    "robots_or_terms_bypass_allowed": false,
+    "rate_limit_bypass_allowed": false,
+    "automatic_oddsportal_access_allowed": false,
+    "automatic_covers_access_allowed": false,
+    "automatic_basketball_reference_access_allowed": false
+  },
+  "capture_contract": {
+    "required_payloads": [
+      "matchups.json",
+      "straight.json"
+    ],
+    "metadata_generated_at_capture": true,
+    "observed_at_must_be_timezone_aware": true,
+    "observed_at_source": "actual_retrieval_time",
+    "source_id_required": true,
+    "bookmaker_id_required": true,
+    "intake_ready_for_import_required": true,
+    "changes_only_retention_required": true,
+    "overwrite_existing_snapshot_allowed": false,
+    "missing_rows_treated_as_unchanged": false,
+    "opening_label_allowed": false,
+    "closing_label_allowed": false
+  },
+  "storage_and_output_boundary": {
+    "public_repository_raw_snapshot_commit_allowed": false,
+    "large_raw_file_commit_allowed": false,
+    "github_artifact_retention_days": 14,
+    "google_drive_automation_enabled_by_default": false,
+    "manual_google_drive_upload_mode": true,
+    "raw_credentials_emitted": false,
+    "cookie_or_session_data_emitted": false,
+    "authorization_headers_emitted": false,
+    "har_files_emitted": false,
+    "nba_value_lab_write_allowed": false
+  },
+  "research_boundary": {
+    "historical_movement_ready": false,
+    "opening_closing_classification_ready": false,
+    "point_in_time_join_ready": false,
+    "market_backtest_ready": false,
+    "clv_ready": false,
+    "ev_ready": false,
+    "roi_ready": false,
+    "drawdown_ready": false,
+    "betting_edge_claim_allowed": false,
+    "formal_stake": 0
+  },
+  "approval_effect": {
+    "allows_exactly_one_manual_capture_attempt": true,
+    "allows_hourly_schedule": false,
+    "allows_daily_odds_capture": false,
+    "allows_new_source_without_review": false,
+    "allows_repeat_execution": false,
+    "allows_nba_value_lab_integration": false
+  },
+  "notes": "This request packet does not contain URL values and does not authorize execution. A separate explicit owner approval naming this request ID is required before any one-time Phase 2 capture attempt."
+}
