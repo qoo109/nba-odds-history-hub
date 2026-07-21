@@ -24,5 +24,60 @@ jobs:
       - name: Install
         run: python -m pip install -e ".[dev]"
 
-      - name: Test
-        run: pytest -q
+      - name: Test files with diagnostics
+        run: |
+          mkdir -p runtime/reports
+          python - <<'PY'
+          import glob
+          import json
+          import subprocess
+          from pathlib import Path
+
+          results = []
+          for test_file in sorted(glob.glob("tests/test_*.py")):
+              completed = subprocess.run(
+                  ["pytest", "-q", test_file],
+                  text=True,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.STDOUT,
+              )
+              results.append({
+                  "file": test_file,
+                  "returnCode": completed.returncode,
+                  "passed": completed.returncode == 0,
+                  "outputTail": completed.stdout[-4000:],
+              })
+              print(f"{test_file}: {'PASS' if completed.returncode == 0 else 'FAIL'}")
+
+          report = {
+              "schemaVersion": "pytest-file-diagnostics-v1",
+              "files": results,
+              "filesPassed": sum(item["passed"] for item in results),
+              "filesTotal": len(results),
+              "filesFailed": sum(not item["passed"] for item in results),
+          }
+          Path("runtime/reports/pytest_file_diagnostics.json").write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-file-diagnostics
+          path: runtime/reports/pytest_file_diagnostics.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Enforce all tests passed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("runtime/reports/pytest_file_diagnostics.json").read_text())
+          failed = [item["file"] for item in report["files"] if not item["passed"]]
+          if failed:
+              raise SystemExit("Failed test files: " + ", ".join(failed))
+          PY
