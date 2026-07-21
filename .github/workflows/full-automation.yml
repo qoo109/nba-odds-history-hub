@@ -154,6 +154,42 @@ jobs:
           copy_and_record sqlite copy data/databases hubdrive:02-sqlite --include "odds_history.sqlite" --create-empty-src-dirs
           exit "$failed"
 
+      - name: Verify Google Drive write and capture remote metadata
+        if: ${{ always() && env.GDRIVE_SERVICE_ACCOUNT_JSON != '' && env.GDRIVE_FOLDER_ID != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          verify_dir="$RUNNER_TEMP/drive-verification"
+          verify_name="verification-${GITHUB_RUN_ID}.json"
+          remote_dir="hubdrive:06-logs/automation-verification/${GITHUB_RUN_ID}"
+
+          mkdir -p "$verify_dir" runtime/reports
+          printf '{"run_id":"%s","repository":"%s","sha":"%s","created_at":"%s"}\n' \
+            "$GITHUB_RUN_ID" "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > "$verify_dir/$verify_name"
+
+          # copyto fixes the remote file path exactly; no directory-level ambiguity.
+          rclone copyto "$verify_dir/$verify_name" "$remote_dir/$verify_name"
+
+          # Compare the downloaded remote bytes with the local marker.
+          rclone check "$verify_dir" "$remote_dir" --one-way --download
+
+          # Save the recursive remote listing, including the Drive file ID when exposed.
+          rclone lsjson "$remote_dir" --files-only --recursive \
+            > runtime/reports/drive_verification_remote.json
+
+          jq -e --arg name "$verify_name" \
+            'any(.[]; .Name == $name and .IsDir == false and .Size > 0)' \
+            runtime/reports/drive_verification_remote.json >/dev/null
+
+          jq -n \
+            --arg status "verified" \
+            --arg remote_dir "$remote_dir" \
+            --arg file_name "$verify_name" \
+            --arg run_id "$GITHUB_RUN_ID" \
+            '{status:$status, remote_dir:$remote_dir, file_name:$file_name, run_id:$run_id}' \
+            > runtime/reports/drive_verification_status.json
+
       - name: Upload safe run evidence to GitHub Actions
         if: always()
         uses: actions/upload-artifact@v4
