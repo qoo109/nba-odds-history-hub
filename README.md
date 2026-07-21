@@ -4,7 +4,7 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.13 — Privacy-safe aggregate metadata export and readiness dashboard ready; collection remains asleep.**
+**V0.15 — Static public release index and deterministic contract drift report ready; collection remains asleep.**
 
 Current operating layers:
 
@@ -20,7 +20,7 @@ Current operating layers:
 3. **Schedule and event mapping**
    - timezone-aware schedule fields
    - exact scheduled-date + home + away candidate key
-   - verified, candidate, quarantine, and rejection states
+   - verified, candidate, quarantine and rejection states
    - no fuzzy or score-assisted identity repair
 4. **Additive mapping database**
    - schedule-version history
@@ -35,8 +35,12 @@ Current operating layers:
    - deterministic repository-only JSON builder
    - aggregate counts and readiness booleans
    - no named source/provider records or row-level events
-   - synced static readiness dashboard
-7. **Phase 2 collection**
+7. **Public release governance**
+   - versioned release manifest
+   - compatibility tests for legacy and aggregate readiness contracts
+   - static release index
+   - deterministic fail-closed drift report
+8. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
    - requires separate explicit approval and reviewed configuration
    - no recurring collection schedule is active
@@ -64,8 +68,16 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - fixture-only schedule output gate v2
 - aggregate metadata/readiness export v1
 - aggregate readiness dashboard v1
+- public readiness release manifest v1
+- public contract drift report v1
+- static release index
 
-## Reference and status assets
+## Public status pages
+
+- [`readiness.html`](readiness.html) — aggregate offseason readiness
+- [`release-index.html`](release-index.html) — public contract versions and drift status
+
+## Reference and governance assets
 
 ```text
 config/nba-team-registry-v1.json
@@ -78,32 +90,43 @@ config/source-registry.json
 config/bookmaker-registry.json
 data/public/offseason-readiness.json
 data/public/offseason-metadata-readiness-v1.json
-data/offseason-aggregate-metadata-dashboard-current-status-v1.json
+data/public/readiness-release-manifest-v1.json
+data/public/readiness-contract-drift-report-v1.json
 scripts/build_offseason_aggregate_metadata_export_v1.py
+scripts/build_public_contract_drift_report_v1.py
 readiness.html
+release-index.html
 ```
 
 ## Current validation
 
 ```text
-OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V2_READY
-28 / 28 checks passed
-
-OFFSEASON_EXPLICIT_SOURCE_PROVIDER_METADATA_AND_SCHEDULE_OUTPUT_GATE_V2_READY
-26 / 26 checks passed
-
 OFFSEASON_AGGREGATE_METADATA_EXPORT_AND_READINESS_DASHBOARD_V1_READY
 25 / 25 checks passed
 
-V0.13 validation workflow: 29812604778
-V0.13 test workflow: 29812604707
-V0.13 compatibility workflow: 29812604790
-V0.13 artifact: 8488029509
+OFFSEASON_PUBLIC_CONTRACT_DRIFT_REPORT_V1_READY
+9 / 9 checks passed
+0 detected drift
+
+V0.15 focused workflow: 29818988525
+V0.15 full test workflow: 29818988517
+V0.15 artifact: 8490529626
 ```
 
-## Aggregate export
+The drift validator compares:
 
-Build the public aggregate JSON:
+```text
+summary.teams
+summary.marketClasses
+fixtureMode
+currentMode
+```
+
+It also verifies committed schema versions and the inactive repository-only boundary. Unexpected drift produces a non-zero exit code.
+
+## Rebuild validation assets
+
+Build the aggregate readiness export:
 
 ```bash
 python scripts/build_offseason_aggregate_metadata_export_v1.py \
@@ -111,7 +134,22 @@ python scripts/build_offseason_aggregate_metadata_export_v1.py \
   --output data/public/offseason-metadata-readiness-v1.json
 ```
 
-The export includes:
+Build the contract drift report:
+
+```bash
+python scripts/build_public_contract_drift_report_v1.py \
+  --output data/public/readiness-contract-drift-report-v1.json
+```
+
+Run focused tests:
+
+```bash
+pytest -q \
+  tests/test_public_readiness_contracts.py \
+  tests/test_readiness_release_index_drift_v1.py
+```
+
+## Current aggregate state
 
 ```text
 teams: 30
@@ -124,9 +162,9 @@ active cadence templates: 0
 fixture schedule games: 6
 ```
 
-The export contains aggregate categories and readiness booleans only. It does not publish named source/provider records, event IDs, event rows, price rows, or external payload content.
+The public exports contain aggregate categories and readiness booleans only. They do not publish named source/provider records, event IDs, event rows, price rows or external payload content.
 
-## Metadata boundary
+## Metadata and execution boundary
 
 The existing source remains manual-only. The existing provider remains a descriptive `source_label_only` record for owner-supplied futures snapshots.
 
@@ -137,6 +175,7 @@ source automation approved: false
 provider automation approved: false
 external schedule read: false
 production schedule imported: false
+scheduled collection: false
 ```
 
 These fields document existing evidence. They do not authorize new access or expand data coverage claims.
@@ -146,12 +185,6 @@ These fields document existing evidence. They do not authorize new access or exp
 ```bash
 python -m pip install -e ".[dev]"
 pytest -q
-```
-
-Validate the aggregate export:
-
-```bash
-pytest -q tests/test_offseason_aggregate_metadata_export_v1.py
 ```
 
 Validate an incoming package:
@@ -179,7 +212,8 @@ odds-hub-import \
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
-- [`readiness.html`](readiness.html)
+- [`docs/static-release-index-drift-v1.md`](docs/static-release-index-drift-v1.md)
+- [`docs/readiness-release-v1.md`](docs/readiness-release-v1.md)
 - [`docs/offseason-aggregate-metadata-dashboard-v1.md`](docs/offseason-aggregate-metadata-dashboard-v1.md)
 - [`docs/provider-metadata-upgrade-v1.md`](docs/provider-metadata-upgrade-v1.md)
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
@@ -193,6 +227,6 @@ odds-hub-import \
 
 ## Public repository boundary
 
-Large or continuously changing raw data, complete SQLite databases, private browser material, HAR files, and account exports do not belong in the public repository.
+Large or continuously changing raw data, complete SQLite databases, private browser material, HAR files and account exports do not belong in the public repository.
 
-The repository keeps code, schemas, manifests, QA reports, documentation, tests, and small privacy-safe samples. Large data and current backups belong in owner-controlled storage or short-lived GitHub Actions Artifacts.
+The repository keeps code, schemas, manifests, QA reports, documentation, tests and small privacy-safe samples. Large data and current backups belong in owner-controlled storage or short-lived GitHub Actions Artifacts.
