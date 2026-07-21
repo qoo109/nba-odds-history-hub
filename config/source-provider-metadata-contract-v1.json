@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "source-provider-metadata-contract-v1",
+  "createdAt": "2026-07-21",
+  "sourceRequiredFields": ["sourceId", "displayName", "sourceClass", "accessMode", "usageBoundary", "automationApproved", "reviewStatus", "rightsStatus", "active"],
+  "providerRequiredFields": ["providerId", "displayName", "sourceId", "active", "definitionStatus", "supportedFormats", "dataScope", "note"],
+  "allowedAccessModes": ["manual", "manual_file", "public_json", "public_download", "manual_reference_only"],
+  "allowedReviewStatuses": ["not_reviewed", "manual_only", "automation_allowed", "blocked"],
+  "allowedRightsStatuses": ["unknown", "owner_supplied_research", "public_research_use", "manual_reference_only", "blocked"],
+  "allowedDefinitionStatuses": ["verified", "source_label_only", "unverified", "retired"],
+  "allowedFormats": ["american", "decimal"],
+  "policy": {
+    "sourceIdUnique": true,
+    "providerIdUnique": true,
+    "providerSourceMustExist": true,
+    "activeSourceMustHaveExplicitReview": true,
+    "activeProviderMustHaveExplicitDefinition": true,
+    "automationRequiresAutomationAllowedReview": true,
+    "manualOnlySourceMayNotBeAutomated": true,
+    "secretValueCommitted": false,
+    "credentialValueCommitted": false,
+    "cookieOrSessionValueCommitted": false,
+    "unknownSourceBehavior": "quarantine_unverified",
+    "unknownProviderBehavior": "quarantine_unverified"
+  },
+  "currentState": {
+    "contractReady": true,
+    "newSourceActivated": false,
+    "newProviderActivated": false,
+    "collectionActive": false
+  }
+}
