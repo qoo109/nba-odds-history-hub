@@ -4,7 +4,7 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.9 — Offseason database contracts and readiness dashboard are ready; collection remains asleep.**
+**V0.10 — Source/provider metadata QA and fixture schedule adapter validated; collection remains asleep.**
 
 Current operating layers:
 
@@ -19,7 +19,7 @@ Current operating layers:
    - normalized game/futures taxonomy
    - inactive observation cadence templates
 3. **Schedule and event mapping**
-   - required source-event and timezone-aware schedule fields
+   - timezone-aware schedule fields
    - exact scheduled-date + home + away candidate key
    - verified, candidate, quarantine, and rejection states
    - no fuzzy or score-assisted identity repair
@@ -27,11 +27,15 @@ Current operating layers:
    - schedule-version history
    - audited mapping decisions
    - current-state and aggregate mapping views
-   - aggregate-only readiness exports
-5. **Phase 2 collection**
+5. **Metadata QA and schedule adapter**
+   - explicit audit of legacy registry gaps
+   - fixture-only schedule normalization
+   - aggregate mapping-status output
+   - no new source or provider activation
+6. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
    - requires separate explicit approval and reviewed configuration
-   - begins with a manual first run; no recurring schedule is active
+   - no recurring collection schedule is active
 
 The automation belongs only to this repository. It does **not** connect to or modify `qoo109/nba-value-lab`.
 
@@ -52,6 +56,8 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - deterministic schedule-mapping fixtures v1
 - schedule-version and mapping-audit database layer v1
 - static offseason readiness dashboard
+- source/provider metadata contract v1
+- fixture-only official schedule adapter contract v1
 
 ## Reference and status assets
 
@@ -60,10 +66,14 @@ config/nba-team-registry-v1.json
 config/market-taxonomy-v1.json
 config/offseason-capture-readiness-v1.json
 config/schedule-import-contract-v1.json
+config/source-provider-metadata-contract-v1.json
+config/official-schedule-adapter-contract-v1.json
 data/offseason-reference-foundation-current-status-v1.json
 data/offseason-schedule-mapping-current-status-v1.json
 data/offseason-database-dashboard-current-status-v1.json
+data/offseason-provider-schedule-adapter-current-status-v1.json
 data/fixtures/offseason-schedule-mapping-v1.json
+data/fixtures/official-schedule-adapter-v1.json
 data/public/offseason-readiness.json
 readiness.html
 ```
@@ -76,29 +86,34 @@ OFFSEASON_REFERENCE_FOUNDATION_V1_READY
 
 OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY
 21 / 21 checks passed
-5 / 5 fixture cases passed
 
 OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY
 30 / 30 checks passed
-pytest: success
+
+OFFSEASON_SOURCE_PROVIDER_METADATA_QA_AND_SCHEDULE_ADAPTER_V1_READY_WITH_LEGACY_METADATA_GAPS
+24 / 24 checks passed
+pytest run 29806193268: success
 ```
 
-## Database additions
+## Known metadata gaps
 
-```text
-source_event_schedule_versions
-source_event_mapping_audit
-current_source_event_schedules
-source_event_mapping_status_summary
-```
+The current legacy source registry does not yet contain explicit `active`, `reviewStatus`, and `rightsStatus` fields. The provider registry does not yet contain explicit `definitionStatus`, `supportedFormats`, and `dataScope` fields.
 
-These structures are additive. Existing source events, imports, snapshots, bookmakers, and canonical events remain intact.
+V0.10 records these gaps without guessing values. No new source or provider was activated.
 
 ## Quick start
 
 ```bash
 python -m pip install -e ".[dev]"
 pytest -q
+```
+
+Validate metadata and the fixture schedule adapter:
+
+```bash
+python scripts/validate_source_provider_schedule_adapter_v1.py \
+  --self-test \
+  --output /tmp/source-provider-schedule-adapter-v1.json
 ```
 
 Validate the database and dashboard fixtures:
@@ -130,14 +145,6 @@ odds-hub-import \
   --export-dir exports
 ```
 
-Build grouped history:
-
-```bash
-odds-hub-build-history \
-  --database data/databases/odds_history.sqlite \
-  --output-dir exports/history
-```
-
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
@@ -145,6 +152,7 @@ odds-hub-build-history \
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
 - [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
 - [`docs/offseason-database-dashboard-v1.md`](docs/offseason-database-dashboard-v1.md)
+- [`docs/source-provider-schedule-adapter-v1.md`](docs/source-provider-schedule-adapter-v1.md)
 - [`docs/full-automation.md`](docs/full-automation.md)
 - [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md)
 - [`docs/manual-import.md`](docs/manual-import.md)
