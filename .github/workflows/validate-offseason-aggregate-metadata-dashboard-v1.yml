@@ -46,7 +46,13 @@ jobs:
           python scripts/build_offseason_aggregate_metadata_export_v1.py \
             --as-of 2026-07-21 \
             --output /tmp/offseason-metadata-readiness-v1.json
-          cmp /tmp/offseason-metadata-readiness-v1.json data/public/offseason-metadata-readiness-v1.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          generated = json.loads(Path("/tmp/offseason-metadata-readiness-v1.json").read_text())
+          committed = json.loads(Path("data/public/offseason-metadata-readiness-v1.json").read_text())
+          assert generated == committed
+          PY
       - name: Enforce dashboard and privacy boundary
         run: |
           python - <<'PY'
