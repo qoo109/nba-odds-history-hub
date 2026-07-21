@@ -1,0 +1,72 @@
+name: Validate offseason schedule mapping v1
+
+on:
+  pull_request:
+    paths:
+      - "config/schedule-import-contract-v1.json"
+      - "config/nba-team-registry-v1.json"
+      - "data/fixtures/offseason-schedule-mapping-v1.json"
+      - "scripts/validate_offseason_schedule_mapping_v1.py"
+      - "docs/offseason-schedule-mapping-v1.md"
+      - ".github/workflows/validate-offseason-schedule-mapping-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-offseason-schedule-mapping-v1-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mapping-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile validator
+        run: python -m py_compile scripts/validate_offseason_schedule_mapping_v1.py
+
+      - name: Validate contract and fixtures
+        run: |
+          python scripts/validate_offseason_schedule_mapping_v1.py \
+            --self-test \
+            --output runtime/reports/offseason_schedule_mapping_v1.json
+
+      - name: Enforce static fixture boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("runtime/reports/offseason_schedule_mapping_v1.json")
+          report = json.loads(path.read_text(encoding="utf-8"))
+          assert report["formalState"] == "OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY"
+          assert report["checksFailed"] == 0
+          assert report["summary"]["fixtureCases"] == 5
+          assert report["summary"]["verifiedCases"] == 1
+          assert report["summary"]["candidateCases"] == 1
+          assert report["summary"]["quarantinedCases"] == 2
+          assert report["summary"]["rejectedCases"] == 1
+          assert report["quality"]["networkCallsMade"] is False
+          assert report["quality"]["sourceScheduleRead"] is False
+          assert report["quality"]["rawRowsEmitted"] == 0
+          assert report["quality"]["rawFilesEmitted"] is False
+          assert report["quality"]["crossRepositoryWrite"] is False
+          PY
+
+      - name: Upload aggregate validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: offseason-schedule-mapping-v1
+          path: runtime/reports/offseason_schedule_mapping_v1.json
+          if-no-files-found: error
+          retention-days: 14
