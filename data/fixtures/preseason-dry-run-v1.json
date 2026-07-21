@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "preseason-dry-run-fixture-v1",
+  "fixtureMode": true,
+  "seasonId": "2026-27",
+  "observations": [
+    {
+      "schemaVersion": "official-schedule-adapter-fixture-v1",
+      "fixtureMode": true,
+      "sourceId": "fixture_preseason_schedule",
+      "observedAt": "2026-09-01T09:00:00Z",
+      "payloadSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "games": [
+        {"caseId": "game_a_initial", "gameId": "20261001", "gameTimeUTC": "2026-10-01T23:30:00Z", "homeTeam": {"teamTricode": "BOS"}, "awayTeam": {"teamTricode": "NYK"}},
+        {"caseId": "game_b_initial", "gameId": "20261002", "gameTimeUTC": "2026-10-02T02:00:00Z", "homeTeam": {"teamTricode": "LAL"}, "awayTeam": {"teamTricode": "GSW"}},
+        {"caseId": "unknown_alias", "gameId": "20261003", "gameTimeUTC": "2026-10-02T23:00:00Z", "homeTeam": {"teamTricode": "XXX"}, "awayTeam": {"teamTricode": "MIA"}}
+      ]
+    },
+    {
+      "schemaVersion": "official-schedule-adapter-fixture-v1",
+      "fixtureMode": true,
+      "sourceId": "fixture_preseason_schedule",
+      "observedAt": "2026-09-02T09:00:00Z",
+      "payloadSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "games": [
+        {"caseId": "game_a_tipoff_revision", "gameId": "20261001", "gameTimeUTC": "2026-10-02T00:00:00Z", "homeTeam": {"teamTricode": "BOS"}, "awayTeam": {"teamTricode": "NYK"}},
+        {"caseId": "game_b_repeat", "gameId": "20261002", "gameTimeUTC": "2026-10-02T02:00:00Z", "homeTeam": {"teamTricode": "LAL"}, "awayTeam": {"teamTricode": "GSW"}},
+        {"caseId": "game_c_new", "gameId": "20261004", "gameTimeUTC": "2026-10-03T01:00:00Z", "homeTeam": {"teamTricode": "CHI"}, "awayTeam": {"teamTricode": "CLE"}},
+        {"caseId": "same_team", "gameId": "20261005", "gameTimeUTC": "2026-10-03T02:00:00Z", "homeTeam": {"teamTricode": "TOR"}, "awayTeam": {"teamTricode": "TOR"}}
+      ]
+    }
+  ],
+  "expected": {
+    "observationCount": 2,
+    "acceptedRows": 5,
+    "excludedRows": 2,
+    "sourceEvents": 3,
+    "scheduleVersions": 5,
+    "currentSchedules": 3,
+    "auditDecisions": 5,
+    "finalState": "preseason_dry_run_ready_awaiting_owner_approval"
+  }
+}

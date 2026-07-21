@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "preseason-readiness-v1",
+  "asOf": "2026-07-21",
+  "mode": "synthetic_fixture",
+  "currentState": "offseason_sleep",
+  "targetState": "preseason_dry_run_ready",
+  "externalRead": false,
+  "productionImport": false,
+  "scheduledRun": false,
+  "requiredChecks": ["configuration", "intake", "mapping", "persistence", "idempotency", "revision", "boundary"]
+}

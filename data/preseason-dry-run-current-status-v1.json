@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "preseason-activation-dry-run-report-v1",
+  "asOf": "2026-07-21",
+  "seasonId": "2026-27",
+  "formalState": "OFFSEASON_PRESEASON_ACTIVATION_GATE_AND_DRY_RUN_FIXTURES_V1_READY",
+  "checks": {
+    "configuration": true,
+    "observation_count": true,
+    "accepted_rows": true,
+    "excluded_rows": true,
+    "source_events": true,
+    "schedule_versions": true,
+    "current_schedules": true,
+    "audit_decisions": true,
+    "single_current_version": true,
+    "candidate_only": true,
+    "canonical_ids_not_created": true,
+    "idempotent_replay": true,
+    "schedule_revision": true,
+    "state_transition": true,
+    "inactive_boundary": true
+  },
+  "checksPassed": 15,
+  "checksTotal": 15,
+  "failedChecks": [],
+  "stateTransitions": [
+    "offseason_sleep",
+    "preseason_dry_run_config_valid",
+    "preseason_dry_run_partial",
+    "preseason_dry_run_ready_awaiting_owner_approval"
+  ],
+  "observations": [
+    {
+      "observation": 1,
+      "accepted": 2,
+      "excluded": 1,
+      "excludedReasonCounts": {"unknown_alias": 1},
+      "versionsInserted": 2
+    },
+    {
+      "observation": 2,
+      "accepted": 3,
+      "excluded": 1,
+      "excludedReasonCounts": {"same_team": 1},
+      "versionsInserted": 3
+    }
+  ],
+  "totals": {
+    "acceptedRows": 5,
+    "excludedRows": 2,
+    "scheduleVersionsInserted": 5,
+    "scheduleIdentityChanges": 1,
+    "payloadOnlyRevisions": 1,
+    "idempotentReplayRows": 3
+  },
+  "database": {
+    "schemaReady": true,
+    "requiredTablesPresent": ["source_event_mapping_audit", "source_event_schedule_versions"],
+    "requiredViewsPresent": ["current_source_event_schedules", "source_event_mapping_status_summary"],
+    "sourceEventCount": 3,
+    "scheduleVersionCount": 5,
+    "currentScheduleCount": 3,
+    "auditDecisionCount": 5,
+    "multipleCurrentScheduleGroups": 0
+  },
+  "mapping": {
+    "statusCounts": {"candidate_unverified": 3},
+    "verifiedEventCount": 0,
+    "verifiedCoveragePct": 0.0
+  },
+  "boundary": {
+    "fixtureOnly": true,
+    "externalRead": false,
+    "productionImport": false,
+    "scheduledCollection": false,
+    "crossRepositoryWrite": false,
+    "rowLevelRecordsEmitted": false
+  }
+}
