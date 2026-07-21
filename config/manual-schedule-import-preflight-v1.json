@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "manual-schedule-import-preflight-v1",
+  "asOf": "2026-07-21",
+  "requestId": "SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001",
+  "state": "disabled_preapproval",
+  "mode": "synthetic_fixture",
+  "ownerApprovalGranted": false,
+  "executionEnabled": false,
+  "maximumExecutionCount": 0,
+  "targetFile": {
+    "path": "data/fixtures/preseason-dry-run-v1.json",
+    "filename": "preseason-dry-run-v1.json",
+    "bytes": 2204,
+    "sha256": "1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512",
+    "schemaVersion": "preseason-dry-run-fixture-v1",
+    "seasonId": "2026-27"
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "id": "identity_and_schema_preflight",
+      "required": true
+    },
+    {
+      "stage": 2,
+      "id": "aggregate_preview",
+      "required": true
+    },
+    {
+      "stage": 3,
+      "id": "transaction_rollback_and_postcheck",
+      "required": true
+    }
+  ],
+  "qualityGates": {
+    "exactPathRequired": true,
+    "exactFilenameRequired": true,
+    "exactByteCountRequired": true,
+    "exactSha256Required": true,
+    "schemaVersionRequired": true,
+    "seasonIdRequired": true,
+    "timezoneAwareTimestampsRequired": true,
+    "currentTeamAliasesRequired": true,
+    "aggregatePreviewRequired": true,
+    "transactionRollbackRequired": true,
+    "postRollbackZeroRowsRequired": true
+  },
+  "executionBoundary": {
+    "fixtureOnly": true,
+    "externalFileAllowed": false,
+    "productionDatabaseAllowed": false,
+    "productionImportAllowed": false,
+    "networkCallsAllowed": false,
+    "scheduledCollectionAllowed": false,
+    "canonicalEventIdCreationAllowed": false,
+    "crossRepositoryWriteAllowed": false
+  }
+}
