@@ -1,12 +1,21 @@
 import copy
+import importlib.util
 import json
 import subprocess
 import sys
 from pathlib import Path
 
-from scripts.build_offseason_aggregate_metadata_export_v1 import INVALID, READY, build_export
-
 ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location(
+    "offseason_aggregate_metadata_builder",
+    ROOT / "scripts/build_offseason_aggregate_metadata_export_v1.py",
+)
+assert SPEC and SPEC.loader
+MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(MODULE)
+INVALID = MODULE.INVALID
+READY = MODULE.READY
+build_export = MODULE.build_export
 
 
 def load(path: str):
