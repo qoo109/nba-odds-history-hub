@@ -4,7 +4,7 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.8 — Offseason schedule and event-mapping contracts ready; collection remains asleep.**
+**V0.9 — Offseason database contracts and readiness dashboard are ready; collection remains asleep.**
 
 Current operating layers:
 
@@ -18,13 +18,17 @@ Current operating layers:
    - canonical 30-team registry
    - normalized game/futures taxonomy
    - inactive observation cadence templates
-   - fail-closed validation and aggregate evidence
 3. **Schedule and event mapping**
    - required source-event and timezone-aware schedule fields
    - exact scheduled-date + home + away candidate key
-   - explicit verified, candidate, quarantine, and rejection states
+   - verified, candidate, quarantine, and rejection states
    - no fuzzy or score-assisted identity repair
-4. **Phase 2 collection**
+4. **Additive mapping database**
+   - schedule-version history
+   - audited mapping decisions
+   - current-state and aggregate mapping views
+   - aggregate-only readiness exports
+5. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
    - requires separate explicit approval and reviewed configuration
    - begins with a manual first run; no recurring schedule is active
@@ -34,27 +38,22 @@ The automation belongs only to this repository. It does **not** connect to or mo
 ## Implemented
 
 - `matchups.json` + `straight.json` intake
-- `matchupId` and `participantId` normalization
-- American-to-decimal conversion
-- raw implied-probability calculation
+- American-to-decimal conversion and implied-probability calculation
 - separate `observed_at` and `ingested_at`
 - SQLite historical storage
-- exact snapshot deduplication
-- changes-only retention
-- CSV and JSON exports
-- source-health tracking
-- bookmaker registry
+- exact snapshot deduplication and changes-only retention
+- source-health tracking and registries
 - grouped history builder
 - automated tests and GitHub Actions
-- daily source-health and optional manual collection workflow
-- optional Google Drive restore/backup code, disabled by default
 - canonical NBA team registry v1
 - market taxonomy v1
 - offseason capture-readiness policy v1
 - schedule-import contract v1
 - deterministic schedule-mapping fixtures v1
+- schedule-version and mapping-audit database layer v1
+- static offseason readiness dashboard
 
-## Reference assets
+## Reference and status assets
 
 ```text
 config/nba-team-registry-v1.json
@@ -63,7 +62,10 @@ config/offseason-capture-readiness-v1.json
 config/schedule-import-contract-v1.json
 data/offseason-reference-foundation-current-status-v1.json
 data/offseason-schedule-mapping-current-status-v1.json
+data/offseason-database-dashboard-current-status-v1.json
 data/fixtures/offseason-schedule-mapping-v1.json
+data/public/offseason-readiness.json
+readiness.html
 ```
 
 Validation results:
@@ -75,7 +77,22 @@ OFFSEASON_REFERENCE_FOUNDATION_V1_READY
 OFFSEASON_SCHEDULE_MAPPING_CONTRACT_V1_READY
 21 / 21 checks passed
 5 / 5 fixture cases passed
+
+OFFSEASON_DATABASE_CONTRACT_AND_DASHBOARD_FIXTURES_V1_READY
+30 / 30 checks passed
+pytest: success
 ```
+
+## Database additions
+
+```text
+source_event_schedule_versions
+source_event_mapping_audit
+current_source_event_schedules
+source_event_mapping_status_summary
+```
+
+These structures are additive. Existing source events, imports, snapshots, bookmakers, and canonical events remain intact.
 
 ## Quick start
 
@@ -84,20 +101,11 @@ python -m pip install -e ".[dev]"
 pytest -q
 ```
 
-Validate the offseason foundation:
+Validate the database and dashboard fixtures:
 
 ```bash
-python scripts/validate_offseason_reference_foundation_v1.py \
-  --self-test \
-  --output /tmp/offseason-reference-foundation-v1.json
-```
-
-Validate schedule mapping:
-
-```bash
-python scripts/validate_offseason_schedule_mapping_v1.py \
-  --self-test \
-  --output /tmp/offseason-schedule-mapping-v1.json
+python scripts/validate_offseason_database_dashboard_v1.py \
+  --output /tmp/offseason-database-dashboard-v1.json
 ```
 
 Validate an incoming package:
@@ -133,14 +141,14 @@ odds-hub-build-history \
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
+- [`readiness.html`](readiness.html)
 - [`docs/offseason-reference-foundation-v1.md`](docs/offseason-reference-foundation-v1.md)
 - [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
+- [`docs/offseason-database-dashboard-v1.md`](docs/offseason-database-dashboard-v1.md)
 - [`docs/full-automation.md`](docs/full-automation.md)
 - [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md)
 - [`docs/manual-import.md`](docs/manual-import.md)
 - [`docs/data-contract.md`](docs/data-contract.md)
-- [`docs/v0.3-history-quality-controls.md`](docs/v0.3-history-quality-controls.md)
-- [`docs/v0.4-multi-snapshot-history.md`](docs/v0.4-multi-snapshot-history.md)
 
 ## Public repository boundary
 
