@@ -44,6 +44,12 @@ def test_three_stage_preflight_passes_and_rolls_back(tmp_path):
     assert all(value == 0 for value in rollback["afterRollback"].values())
 
 
+def test_committed_aggregate_status_is_reproducible(tmp_path):
+    generated = run_preflight(ROOT, tmp_path / "preflight.sqlite")
+    committed = load("data/manual-schedule-import-preflight-current-status-v1.json")
+    assert generated == committed
+
+
 def test_preflight_remains_disabled_and_fixture_only(tmp_path):
     report = run_preflight(ROOT, tmp_path / "preflight.sqlite")
     assert report["approval"] == {
