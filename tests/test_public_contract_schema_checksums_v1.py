@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -50,10 +51,17 @@ def test_aggregate_schema_rejects_row_level_change():
         Draft202012Validator(schema).validate(document)
 
 
-def test_builder_is_deterministic():
+def test_committed_manifest_is_reproducible():
     module = load_builder()
-    first = module.build()
-    second = module.build()
-    assert first == second
-    assert first["assetCount"] == len(module.ASSETS) == len(first["assets"])
-    assert first["algorithm"] == "sha256"
+    committed = read("data/public/public-governance-checksums-v1.json")
+    assert committed == module.build()
+    assert committed["assetCount"] == len(module.ASSETS) == len(committed["assets"])
+    assert committed["algorithm"] == "sha256"
+
+
+def test_each_integrity_value_matches_file_bytes():
+    manifest = read("data/public/public-governance-checksums-v1.json")
+    for row in manifest["assets"]:
+        payload = (ROOT / row["path"]).read_bytes()
+        assert row["bytes"] == len(payload)
+        assert row["sha256"] == hashlib.sha256(payload).hexdigest()
