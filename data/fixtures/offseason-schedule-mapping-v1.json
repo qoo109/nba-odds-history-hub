@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "offseason-schedule-mapping-fixture-v1",
+  "fixtureMode": true,
+  "createdAt": "2026-07-21",
+  "cases": [
+    {
+      "caseId": "current_alias_candidate",
+      "sourceId": "fixture_schedule_source",
+      "sourceEventId": "fixture-event-001",
+      "scheduledTipoff": "2026-10-20T19:30:00-04:00",
+      "sourceTimezone": "America/New_York",
+      "homeTeamAlias": "bos",
+      "awayTeamAlias": "atl",
+      "retrievedAt": "2026-07-21T12:00:00+08:00",
+      "payloadSha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "canonicalEventId": null,
+      "mappingMethod": "exact_date_home_away_candidate",
+      "expectedStatus": "candidate_unverified"
+    },
+    {
+      "caseId": "explicit_fixture_verified",
+      "sourceId": "fixture_schedule_source",
+      "sourceEventId": "fixture-event-002",
+      "scheduledTipoff": "2026-10-20T22:00:00-04:00",
+      "sourceTimezone": "America/New_York",
+      "homeTeamAlias": "nyk",
+      "awayTeamAlias": "phi",
+      "retrievedAt": "2026-07-21T12:00:00+08:00",
+      "payloadSha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "canonicalEventId": "fixture-only:canonical-event-002",
+      "mappingMethod": "synthetic_fixture_only",
+      "expectedStatus": "verified"
+    },
+    {
+      "caseId": "historical_alias_needs_season_review",
+      "sourceId": "fixture_schedule_source",
+      "sourceEventId": "fixture-event-003",
+      "scheduledTipoff": "2026-10-21T19:30:00-04:00",
+      "sourceTimezone": "America/New_York",
+      "homeTeamAlias": "NJN",
+      "awayTeamAlias": "bos",
+      "retrievedAt": "2026-07-21T12:00:00+08:00",
+      "payloadSha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "canonicalEventId": null,
+      "mappingMethod": "none",
+      "expectedStatus": "quarantined"
+    },
+    {
+      "caseId": "unknown_alias_quarantined",
+      "sourceId": "fixture_schedule_source",
+      "sourceEventId": "fixture-event-004",
+      "scheduledTipoff": "2026-10-21T22:00:00-04:00",
+      "sourceTimezone": "America/New_York",
+      "homeTeamAlias": "unknown-team",
+      "awayTeamAlias": "mia",
+      "retrievedAt": "2026-07-21T12:00:00+08:00",
+      "payloadSha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "canonicalEventId": null,
+      "mappingMethod": "none",
+      "expectedStatus": "quarantined"
+    },
+    {
+      "caseId": "same_team_rejected",
+      "sourceId": "fixture_schedule_source",
+      "sourceEventId": "fixture-event-005",
+      "scheduledTipoff": "2026-10-22T19:30:00-04:00",
+      "sourceTimezone": "America/New_York",
+      "homeTeamAlias": "tor",
+      "awayTeamAlias": "tor",
+      "retrievedAt": "2026-07-21T12:00:00+08:00",
+      "payloadSha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "canonicalEventId": null,
+      "mappingMethod": "none",
+      "expectedStatus": "rejected"
+    }
+  ]
+}
