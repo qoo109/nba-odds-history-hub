@@ -4,15 +4,14 @@ A dedicated, auditable repository for collecting and preserving NBA market histo
 
 ## Current phase
 
-**V0.15 — Static public release index and deterministic contract drift report ready; collection remains asleep.**
+**V0.16 — Public JSON Schema declarations and deterministic integrity manifest ready; collection remains asleep.**
 
 Current operating layers:
 
 1. **Daily source health**
    - runs daily at 09:11 Asia/Taipei
    - monitors approved free/public sources
-   - uploads safe 14-day GitHub Actions Artifacts
-   - Google Drive automation remains disabled by default
+   - uploads short-lived GitHub Actions Artifacts
 2. **Static offseason foundation**
    - canonical 30-team registry
    - normalized game/futures taxonomy
@@ -30,19 +29,19 @@ Current operating layers:
    - complete source and provider metadata fields
    - fixture-only schedule normalization
    - additive candidate persistence
-   - no new source or provider activation
 6. **Aggregate readiness export**
    - deterministic repository-only JSON builder
    - aggregate counts and readiness booleans
-   - no named source/provider records or row-level events
 7. **Public release governance**
    - versioned release manifest
-   - compatibility tests for legacy and aggregate readiness contracts
+   - legacy/current compatibility tests
    - static release index
-   - deterministic fail-closed drift report
+   - deterministic contract drift report
+   - Draft 2020-12 JSON Schema declarations
+   - deterministic SHA-256 integrity manifest
 8. **Phase 2 collection**
    - remains disabled until a monitoring window is needed
-   - requires separate explicit approval and reviewed configuration
+   - requires a separate explicit decision
    - no recurring collection schedule is active
 
 The automation belongs only to this repository. It does **not** connect to or modify `qoo109/nba-value-lab`.
@@ -56,12 +55,9 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - exact snapshot deduplication and changes-only retention
 - source-health tracking and registries
 - grouped history builder
-- automated tests and GitHub Actions
 - canonical NBA team registry v1
 - market taxonomy v1
-- offseason capture-readiness policy v1
-- schedule-import contract v1
-- deterministic schedule-mapping fixtures v1
+- schedule-import contract and mapping fixtures v1
 - schedule-version and mapping-audit database layer v1
 - explicit source metadata registry v0.11
 - explicit provider metadata registry v0.12
@@ -71,31 +67,36 @@ The automation belongs only to this repository. It does **not** connect to or mo
 - public readiness release manifest v1
 - public contract drift report v1
 - static release index
+- three public JSON Schema declarations
+- deterministic public integrity manifest v1
+- automated tests and GitHub Actions
 
 ## Public status pages
 
 - [`readiness.html`](readiness.html) — aggregate offseason readiness
 - [`release-index.html`](release-index.html) — public contract versions and drift status
 
-## Reference and governance assets
+## Public declarations and integrity assets
 
 ```text
-config/nba-team-registry-v1.json
-config/market-taxonomy-v1.json
-config/offseason-capture-readiness-v1.json
-config/schedule-import-contract-v1.json
-config/source-provider-metadata-contract-v1.json
-config/official-schedule-adapter-contract-v1.json
-config/source-registry.json
-config/bookmaker-registry.json
-data/public/offseason-readiness.json
-data/public/offseason-metadata-readiness-v1.json
+schemas/public/readiness-release-manifest-v1.schema.json
+schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json
+schemas/public/public-contract-drift-report-v1.schema.json
+data/public/public-governance-checksums-v1.json
+scripts/build_public_governance_checksums_v1.py
+```
+
+Declaration map:
+
+```text
 data/public/readiness-release-manifest-v1.json
+  -> schemas/public/readiness-release-manifest-v1.schema.json
+
+data/public/offseason-metadata-readiness-v1.json
+  -> schemas/public/offseason-aggregate-metadata-readiness-v1.schema.json
+
 data/public/readiness-contract-drift-report-v1.json
-scripts/build_offseason_aggregate_metadata_export_v1.py
-scripts/build_public_contract_drift_report_v1.py
-readiness.html
-release-index.html
+  -> schemas/public/public-contract-drift-report-v1.schema.json
 ```
 
 ## Current validation
@@ -108,21 +109,15 @@ OFFSEASON_PUBLIC_CONTRACT_DRIFT_REPORT_V1_READY
 9 / 9 checks passed
 0 detected drift
 
-V0.15 focused workflow: 29818988525
-V0.15 full test workflow: 29818988517
-V0.15 artifact: 8490529626
+OFFSEASON_PUBLIC_JSON_SCHEMA_AND_CHECKSUM_MANIFEST_V1_READY
+3 schema declarations
+8 integrity assets
+sha256
+
+V0.16 focused workflow: 29840324365
+V0.16 full test workflow: 29840324295
+V0.16 artifact: 8499063803
 ```
-
-The drift validator compares:
-
-```text
-summary.teams
-summary.marketClasses
-fixtureMode
-currentMode
-```
-
-It also verifies committed schema versions and the inactive repository-only boundary. Unexpected drift produces a non-zero exit code.
 
 ## Rebuild validation assets
 
@@ -141,12 +136,20 @@ python scripts/build_public_contract_drift_report_v1.py \
   --output data/public/readiness-contract-drift-report-v1.json
 ```
 
-Run focused tests:
+Build the integrity manifest:
+
+```bash
+python scripts/build_public_governance_checksums_v1.py \
+  --output data/public/public-governance-checksums-v1.json
+```
+
+Run focused governance tests:
 
 ```bash
 pytest -q \
   tests/test_public_readiness_contracts.py \
-  tests/test_readiness_release_index_drift_v1.py
+  tests/test_readiness_release_index_drift_v1.py \
+  tests/test_public_contract_schema_checksums_v1.py
 ```
 
 ## Current aggregate state
@@ -162,11 +165,7 @@ active cadence templates: 0
 fixture schedule games: 6
 ```
 
-The public exports contain aggregate categories and readiness booleans only. They do not publish named source/provider records, event IDs, event rows, price rows or external payload content.
-
-## Metadata and execution boundary
-
-The existing source remains manual-only. The existing provider remains a descriptive `source_label_only` record for owner-supplied futures snapshots.
+## Current execution boundary
 
 ```text
 new sources activated: 0
@@ -176,9 +175,8 @@ provider automation approved: false
 external schedule read: false
 production schedule imported: false
 scheduled collection: false
+Phase 2 approval granted: false
 ```
-
-These fields document existing evidence. They do not authorize new access or expand data coverage claims.
 
 ## Quick start
 
@@ -193,25 +191,10 @@ Validate an incoming package:
 odds-hub-validate-intake --package-dir data/incoming/example
 ```
 
-Import an approved package:
-
-```bash
-odds-hub-import \
-  --matchups data/incoming/example/matchups.json \
-  --straight data/incoming/example/straight.json \
-  --observed-at 2026-07-20T12:00:00Z \
-  --database data/databases/odds_history.sqlite \
-  --source manual_json \
-  --source-name "Manual JSON" \
-  --bookmaker example_book \
-  --bookmaker-name "Example Book" \
-  --dedupe-mode changes-only \
-  --export-dir exports
-```
-
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
+- [`docs/public-data-declarations-v1.md`](docs/public-data-declarations-v1.md)
 - [`docs/static-release-index-drift-v1.md`](docs/static-release-index-drift-v1.md)
 - [`docs/readiness-release-v1.md`](docs/readiness-release-v1.md)
 - [`docs/offseason-aggregate-metadata-dashboard-v1.md`](docs/offseason-aggregate-metadata-dashboard-v1.md)
@@ -220,13 +203,9 @@ odds-hub-import \
 - [`docs/offseason-schedule-mapping-v1.md`](docs/offseason-schedule-mapping-v1.md)
 - [`docs/offseason-database-dashboard-v1.md`](docs/offseason-database-dashboard-v1.md)
 - [`docs/source-provider-schedule-adapter-v1.md`](docs/source-provider-schedule-adapter-v1.md)
-- [`docs/full-automation.md`](docs/full-automation.md)
-- [`docs/second-snapshot-intake.md`](docs/second-snapshot-intake.md)
 - [`docs/manual-import.md`](docs/manual-import.md)
 - [`docs/data-contract.md`](docs/data-contract.md)
 
 ## Public repository boundary
 
-Large or continuously changing raw data, complete SQLite databases, private browser material, HAR files and account exports do not belong in the public repository.
-
-The repository keeps code, schemas, manifests, QA reports, documentation, tests and small privacy-safe samples. Large data and current backups belong in owner-controlled storage or short-lived GitHub Actions Artifacts.
+Large or continuously changing raw data and complete SQLite databases do not belong in the public repository. The repository keeps code, schemas, manifests, QA reports, documentation, tests and small privacy-safe samples.
