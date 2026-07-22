@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "preseason-approval-state-machine-v1",
+  "asOf": "2026-07-21",
+  "machineId": "SCHEDULE-APPROVAL-STATE-MACHINE-2026-07-21-001",
+  "sourcePacketId": "SCHEDULE-OWNER-REVIEW-2026-07-21-001",
+  "initialState": "review_ready_disabled",
+  "currentState": "review_ready_disabled",
+  "approvalRequested": false,
+  "approvalRecorded": false,
+  "approvalGranted": false,
+  "executionEnabled": false,
+  "maximumExecutionCount": 0,
+  "reviewPolicy": {
+    "fixtureOnly": true,
+    "maxReviewAgeDays": 14,
+    "separateApprovalRequestRequired": true,
+    "rePreflightRequiredOnIdentityDrift": true,
+    "rePreflightRequiredOnSchemaDrift": true,
+    "rePreflightRequiredOnSeasonDrift": true,
+    "revocationRequiredOnBoundaryDrift": true
+  },
+  "states": [
+    "review_ready_disabled",
+    "synthetic_review_requested",
+    "synthetic_review_in_progress",
+    "synthetic_review_complete_disabled",
+    "re_preflight_required",
+    "rejected_closed",
+    "expired_closed",
+    "revoked_closed"
+  ],
+  "allowedTransitions": [
+    {"from": "review_ready_disabled", "event": "request_new_synthetic_review", "to": "synthetic_review_requested"},
+    {"from": "synthetic_review_requested", "event": "start_synthetic_review", "to": "synthetic_review_in_progress"},
+    {"from": "synthetic_review_requested", "event": "reject", "to": "rejected_closed"},
+    {"from": "synthetic_review_requested", "event": "expire", "to": "expired_closed"},
+    {"from": "synthetic_review_requested", "event": "revoke", "to": "revoked_closed"},
+    {"from": "synthetic_review_in_progress", "event": "complete_without_approval", "to": "synthetic_review_complete_disabled"},
+    {"from": "synthetic_review_in_progress", "event": "identity_drift", "to": "re_preflight_required"},
+    {"from": "synthetic_review_in_progress", "event": "schema_or_season_drift", "to": "re_preflight_required"},
+    {"from": "synthetic_review_in_progress", "event": "reject", "to": "rejected_closed"},
+    {"from": "synthetic_review_in_progress", "event": "expire", "to": "expired_closed"},
+    {"from": "synthetic_review_in_progress", "event": "revoke", "to": "revoked_closed"},
+    {"from": "synthetic_review_complete_disabled", "event": "return_to_disabled", "to": "review_ready_disabled"},
+    {"from": "synthetic_review_complete_disabled", "event": "evidence_drift", "to": "re_preflight_required"},
+    {"from": "synthetic_review_complete_disabled", "event": "expire", "to": "expired_closed"},
+    {"from": "synthetic_review_complete_disabled", "event": "revoke", "to": "revoked_closed"}
+  ],
+  "terminalStateRules": {
+    "re_preflight_required": "new_preflight_and_owner_review_packet_required",
+    "rejected_closed": "new_synthetic_review_packet_required",
+    "expired_closed": "fresh_evidence_and_new_review_packet_required",
+    "revoked_closed": "manual_change_review_and_new_preflight_required"
+  },
+  "executionBoundary": {
+    "fixtureOnly": true,
+    "externalFileAllowed": false,
+    "productionDatabaseAllowed": false,
+    "productionImportAllowed": false,
+    "networkCallsAllowed": false,
+    "scheduledCollectionAllowed": false,
+    "canonicalEventIdCreationAllowed": false,
+    "crossRepositoryWriteAllowed": false,
+    "rowLevelRecordsAllowed": false,
+    "shellCommandAllowed": false,
+    "implementationModuleAllowed": false
+  }
+}
