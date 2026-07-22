@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "preseason-change-control-matrix-v1",
+  "asOf": "2026-07-21",
+  "matrixId": "SCHEDULE-CHANGE-CONTROL-2026-07-21-001",
+  "sourcePacketId": "SCHEDULE-OWNER-REVIEW-2026-07-21-001",
+  "defaultAction": "fail_closed_manual_review",
+  "changes": [
+    {
+      "field": "targetFile.path",
+      "classification": "identity",
+      "action": "re_preflight_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "targetFile.filename",
+      "classification": "identity",
+      "action": "re_preflight_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "targetFile.bytes",
+      "classification": "identity",
+      "action": "re_preflight_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "targetFile.sha256",
+      "classification": "identity",
+      "action": "re_preflight_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "targetFile.schemaVersion",
+      "classification": "schema",
+      "action": "re_preflight_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "targetFile.seasonId",
+      "classification": "season",
+      "action": "re_preflight_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "preflight.checksPassed",
+      "classification": "quality",
+      "action": "rejected_closed",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "preflight.failedChecks",
+      "classification": "quality",
+      "action": "rejected_closed",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "preflight.artifact.id",
+      "classification": "evidence",
+      "action": "new_owner_review_packet_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "preflight.artifact.digest",
+      "classification": "evidence",
+      "action": "new_owner_review_packet_required",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "review.ageDays",
+      "classification": "expiry",
+      "action": "expired_closed",
+      "invalidateOwnerPacket": true,
+      "threshold": 14
+    },
+    {
+      "field": "ownerDecision.rejected",
+      "classification": "decision",
+      "action": "rejected_closed",
+      "invalidateOwnerPacket": false
+    },
+    {
+      "field": "ownerDecision.revoked",
+      "classification": "decision",
+      "action": "revoked_closed",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "executionBoundary",
+      "classification": "safety",
+      "action": "revoked_closed",
+      "invalidateOwnerPacket": true
+    },
+    {
+      "field": "approvedDatabasePath",
+      "classification": "production_reference",
+      "action": "separate_future_request_required",
+      "invalidateOwnerPacket": false
+    },
+    {
+      "field": "backupId",
+      "classification": "production_reference",
+      "action": "separate_future_request_required",
+      "invalidateOwnerPacket": false
+    }
+  ],
+  "requiredRePreflightFields": [
+    "targetFile.path",
+    "targetFile.filename",
+    "targetFile.bytes",
+    "targetFile.sha256",
+    "targetFile.schemaVersion",
+    "targetFile.seasonId"
+  ],
+  "prohibitedV020Activations": [
+    "approvalGranted",
+    "executionEnabled",
+    "productionDatabaseAllowed",
+    "productionImportAllowed",
+    "externalFileAllowed",
+    "networkCallsAllowed",
+    "scheduledCollectionAllowed",
+    "canonicalEventIdCreationAllowed",
+    "crossRepositoryWriteAllowed",
+    "shellCommandAllowed",
+    "implementationModuleAllowed"
+  ],
+  "boundary": {
+    "fixtureOnly": true,
+    "approvalRequested": false,
+    "approvalRecorded": false,
+    "approvalGranted": false,
+    "executionEnabled": false,
+    "maximumExecutionCount": 0,
+    "externalFilesRead": false,
+    "productionDatabaseTouched": false,
+    "productionScheduleImported": false,
+    "networkCallsMade": false,
+    "scheduledCollection": false,
+    "canonicalEventIdsCreated": 0,
+    "crossRepositoryWrite": false,
+    "rowLevelRecordsEmitted": false
+  }
+}
