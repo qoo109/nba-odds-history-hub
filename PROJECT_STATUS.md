@@ -1,32 +1,33 @@
 # Project Status
 
-Updated: 2026-07-21
+Updated: 2026-07-22
 
 ## Current phase
 
-**V0.19 — Aggregate owner-review packet and disabled control-step plan ready; collection remains asleep**
+**V0.20 — Fixture-only approval state machine and fail-closed change-control matrix ready; collection remains asleep**
 
 This repository remains separate from `qoo109/nba-value-lab`.
 
 ## Current control block
 
 ```text
-latest V0.19 merge: d4c35b1bcb1001afe0d48b41f1c64f36d5a202e3
+latest V0.20 merge: f7b9bda017bd2b1111dfcb6eb9720aeca5849295
 current mode: offseason_sleep
 scheduled collection: false
 manual Phase 2 approval granted: false
-owner review decision requested: false
-owner review decision recorded: false
-owner review approval granted: false
+approval requested: false
+approval recorded: false
+approval granted: false
 manual schedule execution enabled: false
 maximum schedule execution count: 0
 production schedule imported: false
+production database touched: false
 external schedule read: false
 real snapshots: 1
 movement-ready quote identities: 0
 ```
 
-## Completed through V0.19
+## Completed through V0.20
 
 - Import, normalized storage, exports and tests
 - First snapshot dashboard and grouped history builder
@@ -42,117 +43,129 @@ movement-ready quote identities: 0
 - Static release index and deterministic drift report
 - Synthetic preseason configuration and two-observation dry run
 - Three-stage manual schedule preflight with mandatory rollback and zero-row post-check
-- Aggregate owner-review packet tied to the exact V0.18 evidence
-- Six-step non-executable control plan with unresolved approval, file, database and backup placeholders
+- Aggregate owner-review packet and six-step non-executable control plan
+- Fixture-only approval state machine with rejection, expiry, revocation and re-preflight transitions
+- Sixteen-rule change-control matrix with fail-closed unknown-change handling
 
-## V0.19 validation evidence
+## V0.20 validation evidence
 
 ```text
-formal state: OFFSEASON_PRESEASON_OWNER_REVIEW_PACKET_AND_DISABLED_IMPORT_COMMAND_PLAN_V1_READY
-merge commit: d4c35b1bcb1001afe0d48b41f1c64f36d5a202e3
-pull request: #41
-focused workflow run: 29852455631
-full test workflow run: 29852455545
-manual preflight workflow run: 29852455102
-preseason workflow run: 29852455129
-public-schema workflow run: 29852455323
-artifact id: 8503909693
-artifact digest: sha256:10e8e2e366b1ceb2b29cb6185d37d29b9d0399cfb968c9404522281b6e0fe3e2
-checks: 31 / 31
+formal state: OFFSEASON_PRESEASON_APPROVAL_STATE_MACHINE_AND_CHANGE_CONTROL_MATRIX_V1_READY
+merge commit: f7b9bda017bd2b1111dfcb6eb9720aeca5849295
+pull request: #43
+focused workflow run: 29935044320
+full test workflow run: 29935042766
+owner-review workflow run: 29935043529
+manual-preflight workflow run: 29935042714
+preseason workflow run: 29935042773
+public-schema workflow run: 29935043676
+artifact id: 8535722355
+artifact digest: sha256:d9503f85b5081c5cdbb62ea07d164ad30b76be9212712fd61250bbed0c21bc04
+checks: 60 / 60
 all workflows: success
 ```
 
 Published assets:
 
 ```text
-config/preseason-owner-review-packet-v1.json
-config/disabled-manual-import-command-plan-v1.json
-data/preseason-owner-review-current-status-v1.json
-src/nba_odds_history_hub/owner_review_packet.py
-scripts/validate_owner_review_packet_v1.py
-tests/test_owner_review_packet_v1.py
-docs/preseason-owner-review-packet-v1.md
-.github/workflows/validate-owner-review-packet-v1.yml
+config/preseason-approval-state-machine-v1.json
+config/preseason-change-control-matrix-v1.json
+src/nba_odds_history_hub/approval_state_machine.py
+scripts/validate_approval_state_machine_v1.py
+tests/test_approval_state_machine_v1.py
+docs/preseason-approval-state-machine-v1.md
+.github/workflows/validate-approval-state-machine-v1.yml
 ```
 
-## Owner-review packet
+## Approval state machine
 
 ```text
-packet id: SCHEDULE-OWNER-REVIEW-2026-07-21-001
-state: review_ready_disabled
-source preflight request: SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001
-decision requested: false
-decision recorded: false
+machine id: SCHEDULE-APPROVAL-STATE-MACHINE-2026-07-21-001
+source packet: SCHEDULE-OWNER-REVIEW-2026-07-21-001
+current state: review_ready_disabled
+states: 8
+allowed transitions: 15
+terminal states: 4
+maximum review age: 14 days
+approval requested: false
+approval recorded: false
 approval granted: false
-separate approval request required: true
+execution enabled: false
 ```
 
-Evidence carried forward:
+States:
 
 ```text
+review_ready_disabled
+synthetic_review_requested
+synthetic_review_in_progress
+synthetic_review_complete_disabled
+re_preflight_required
+rejected_closed
+expired_closed
+revoked_closed
+```
+
+No approved or executable state exists in V0.20.
+
+## Change-control matrix
+
+```text
+matrix id: SCHEDULE-CHANGE-CONTROL-2026-07-21-001
+change rules: 16
+re-preflight identity fields: 6
+prohibited activation fields: 11
+default unknown-change action: fail_closed_manual_review
+```
+
+The following fields always require a new preflight and invalidate the current owner-review packet:
+
+```text
+targetFile.path
+targetFile.filename
+targetFile.bytes
+targetFile.sha256
+targetFile.schemaVersion
+targetFile.seasonId
+```
+
+Fail-closed outcomes:
+
+```text
+file identity drift -> re_preflight_required
+schema or season drift -> re_preflight_required
+quality failure -> rejected_closed
+review age above 14 days -> expired_closed
+owner rejection -> rejected_closed
+owner revocation -> revoked_closed
+execution-boundary drift -> revoked_closed
+unknown change -> fail_closed_manual_review
+```
+
+Artifact identity changes require a new owner-review packet. Production database and backup references remain separate-future-request inputs and do not activate execution.
+
+## Preserved review and rollback evidence
+
+```text
+owner-review packet: SCHEDULE-OWNER-REVIEW-2026-07-21-001
+owner-review state: review_ready_disabled
+preflight request: SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001
 preflight checks: 19 / 19
 target path: data/fixtures/preseason-dry-run-v1.json
 target bytes: 2204
 target sha256: 1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512
-preflight artifact id: 8500959742
-preflight artifact digest: sha256:cd398c5a3bba096b1f5ba392bb47c8afff766be66a2d955a267d0360bfd4d654
 rollback executed: true
 post-rollback total rows: 0
 ```
 
-The only current review outcomes are `keep_disabled` and `request_new_synthetic_review`. V0.19 does not ask the owner to approve a production import.
-
-## Disabled control-step plan
+The disabled command plan remains non-executable:
 
 ```text
 plan id: SCHEDULE-IMPORT-COMMAND-PLAN-2026-07-21-001
-state: disabled_non_executable
-representation: ordered_control_steps
-control steps: 6
-required placeholders: 5
-executable: false
 shell command emitted: false
 implementation module present: false
 execution count: 0
 ```
-
-The six steps describe future controls only:
-
-1. validate aggregate review evidence
-2. bind a separate approval request
-3. bind an exact approved file identity
-4. verify an independent database backup reference
-5. describe a transactional import without execution
-6. require post-import aggregate checks and a rollback decision
-
-Unresolved placeholders:
-
-```text
-SEPARATE_APPROVAL_REQUEST_ID
-APPROVED_FILE_PATH
-APPROVED_FILE_SHA256
-APPROVED_DATABASE_PATH
-BACKUP_ID
-```
-
-No command string, shell body, argument vector or executable import module is emitted.
-
-## Preserved V0.18 rollback evidence
-
-Inside the temporary transaction:
-
-```text
-data sources: 1
-source events: 3
-schedule versions: 5
-current schedules: 3
-mapping audit decisions: 5
-canonical events: 0
-raw imports: 0
-odds snapshots: 0
-```
-
-After rollback every listed count is zero. Production database access remained false.
 
 ## Current real-data state
 
@@ -183,18 +196,19 @@ The Phase 2 request remains inactive during the offseason.
 ## Next unique mainline
 
 ```text
-OFFSEASON_PRESEASON_APPROVAL_STATE_MACHINE_AND_CHANGE_CONTROL_MATRIX
+OFFSEASON_PRESEASON_DISABLED_IMPORT_REQUEST_CONTRACT_AND_BACKUP_RESTORE_FIXTURES
 ```
 
-The next safe task is to define a fixture-only approval state machine and change-control matrix covering allowed transitions, rejection, expiry, revocation and re-preflight requirements. It must remain non-executable, must not request approval, and must not read an external schedule or touch a production database.
+The next safe task is to define a disabled import-request contract and synthetic backup/restore fixtures. It may bind only repository synthetic file identities and a temporary SQLite database. It must not request or record owner approval, emit a runnable production command, read an external schedule, access a production database, enable recurring collection or write to another repository.
 
 ## Safety boundary
 
 - No access-control or website-policy bypass.
-- No external schedule retrieval in V0.19.
-- No production database access in V0.19.
-- No production schedule import in V0.19.
+- No external schedule retrieval in V0.20.
+- No production database access in V0.20.
+- No production schedule import in V0.20.
 - No scheduled collection during offseason sleep mode.
 - No canonical event ID creation.
-- No row-level owner-review artifact.
+- No row-level approval artifact.
+- No runnable import command or production implementation module.
 - No automatic write to `qoo109/nba-value-lab`.
