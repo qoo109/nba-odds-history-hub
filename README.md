@@ -4,7 +4,7 @@ A dedicated, auditable repository for preserving NBA market history independentl
 
 ## Current phase
 
-**V0.19 — Aggregate owner-review packet and disabled control-step plan ready; collection remains asleep.**
+**V0.20 — Fixture-only approval state machine and fail-closed change-control matrix ready; collection remains asleep.**
 
 The repository currently provides:
 
@@ -15,11 +15,110 @@ The repository currently provides:
 5. synthetic preseason schedule dry runs;
 6. a disabled three-stage manual schedule preflight;
 7. an aggregate owner-review packet and non-executable six-step control plan;
-8. Phase 2 collection, which remains inactive pending a separate explicit decision.
+8. a fixture-only approval state machine and change-control matrix;
+9. Phase 2 collection, which remains inactive pending a separate explicit decision.
 
 Nothing in this repository automatically connects to or modifies `qoo109/nba-value-lab`.
 
-## V0.19 owner-review packet
+## V0.20 approval state machine
+
+```text
+machine id: SCHEDULE-APPROVAL-STATE-MACHINE-2026-07-21-001
+source packet: SCHEDULE-OWNER-REVIEW-2026-07-21-001
+current state: review_ready_disabled
+states: 8
+allowed transitions: 15
+terminal states: 4
+maximum review age: 14 days
+approval requested: false
+approval recorded: false
+approval granted: false
+execution enabled: false
+maximum execution count: 0
+```
+
+Available states:
+
+```text
+review_ready_disabled
+synthetic_review_requested
+synthetic_review_in_progress
+synthetic_review_complete_disabled
+re_preflight_required
+rejected_closed
+expired_closed
+revoked_closed
+```
+
+No approved or executable state exists in V0.20.
+
+## Change-control matrix
+
+```text
+matrix id: SCHEDULE-CHANGE-CONTROL-2026-07-21-001
+change rules: 16
+re-preflight fields: 6
+prohibited activation fields: 11
+default action: fail_closed_manual_review
+```
+
+These identity fields always require a new preflight and invalidate the current owner-review packet:
+
+```text
+targetFile.path
+targetFile.filename
+targetFile.bytes
+targetFile.sha256
+targetFile.schemaVersion
+targetFile.seasonId
+```
+
+Fail-closed behavior:
+
+```text
+identity drift -> re_preflight_required
+schema or season drift -> re_preflight_required
+quality failure -> rejected_closed
+review age above 14 days -> expired_closed
+owner rejection -> rejected_closed
+owner revocation -> revoked_closed
+execution-boundary drift -> revoked_closed
+unknown change -> fail_closed_manual_review
+```
+
+Artifact identity changes require a fresh owner-review packet. Production database and backup references remain future-request-only inputs.
+
+## V0.20 validation
+
+```text
+formal state:
+OFFSEASON_PRESEASON_APPROVAL_STATE_MACHINE_AND_CHANGE_CONTROL_MATRIX_V1_READY
+
+checks: 60 / 60
+focused workflow: 29935044320
+full test workflow: 29935042766
+owner-review workflow: 29935043529
+manual-preflight workflow: 29935042714
+preseason workflow: 29935042773
+public-schema workflow: 29935043676
+artifact: 8535722355
+artifact digest:
+sha256:d9503f85b5081c5cdbb62ea07d164ad30b76be9212712fd61250bbed0c21bc04
+```
+
+## V0.20 assets
+
+```text
+config/preseason-approval-state-machine-v1.json
+config/preseason-change-control-matrix-v1.json
+src/nba_odds_history_hub/approval_state_machine.py
+scripts/validate_approval_state_machine_v1.py
+tests/test_approval_state_machine_v1.py
+docs/preseason-approval-state-machine-v1.md
+.github/workflows/validate-approval-state-machine-v1.yml
+```
+
+## Preserved V0.19 owner review
 
 ```text
 packet id: SCHEDULE-OWNER-REVIEW-2026-07-21-001
@@ -28,125 +127,36 @@ source preflight request: SCHEDULE-IMPORT-PREFLIGHT-2026-07-21-001
 decision requested: false
 decision recorded: false
 approval granted: false
-execution enabled: false
-maximum execution count: 0
 ```
 
-The packet references the exact validated V0.18 evidence:
+The packet references the validated V0.18 evidence:
 
 ```text
 preflight checks: 19 / 19
 path: data/fixtures/preseason-dry-run-v1.json
 bytes: 2204
 sha256: 1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512
-preflight artifact: 8500959742
 rollback executed: true
 post-rollback total rows: 0
 ```
 
-It does not ask for production approval. The only current outcomes are to keep the packet disabled or request another synthetic review.
-
-## Disabled control-step plan
+The six-step control plan remains non-executable:
 
 ```text
 plan id: SCHEDULE-IMPORT-COMMAND-PLAN-2026-07-21-001
-state: disabled_non_executable
-representation: ordered_control_steps
-control steps: 6
-required placeholders: 5
 executable: false
 shell command emitted: false
 implementation module present: false
+execution count: 0
 ```
-
-The six steps describe controls rather than a runnable command:
-
-1. validate aggregate review evidence;
-2. bind a separate approval request;
-3. bind an exact approved file identity;
-4. verify an independent database backup reference;
-5. describe a transactional import without execution;
-6. require post-import aggregate checks and a rollback decision.
-
-No command string, shell body, argument vector or executable import module is emitted.
-
-## V0.19 validation
-
-```text
-formal state:
-OFFSEASON_PRESEASON_OWNER_REVIEW_PACKET_AND_DISABLED_IMPORT_COMMAND_PLAN_V1_READY
-
-checks: 31 / 31
-focused workflow: 29852455631
-full test workflow: 29852455545
-manual preflight workflow: 29852455102
-preseason workflow: 29852455129
-public-schema workflow: 29852455323
-artifact: 8503909693
-artifact digest:
-sha256:10e8e2e366b1ceb2b29cb6185d37d29b9d0399cfb968c9404522281b6e0fe3e2
-```
-
-## V0.19 assets
-
-```text
-config/preseason-owner-review-packet-v1.json
-config/disabled-manual-import-command-plan-v1.json
-data/preseason-owner-review-current-status-v1.json
-src/nba_odds_history_hub/owner_review_packet.py
-scripts/validate_owner_review_packet_v1.py
-tests/test_owner_review_packet_v1.py
-docs/preseason-owner-review-packet-v1.md
-.github/workflows/validate-owner-review-packet-v1.yml
-```
-
-## Preserved V0.18 preflight
-
-### 1. Exact identity and schema
-
-```text
-path: data/fixtures/preseason-dry-run-v1.json
-filename: preseason-dry-run-v1.json
-bytes: 2204
-sha256: 1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512
-schema: preseason-dry-run-fixture-v1
-season: 2026-27
-```
-
-### 2. Aggregate preview
-
-```text
-observations: 2
-accepted rows: 5
-excluded rows: 2
-unique accepted events: 3
-unknown aliases: 1
-same-team rows: 1
-row-level excluded records emitted: false
-```
-
-### 3. Transaction rollback
-
-Inside the temporary transaction:
-
-```text
-source events: 3
-schedule versions: 5
-current schedules: 3
-mapping audit decisions: 5
-canonical events: 0
-raw imports: 0
-odds snapshots: 0
-```
-
-After rollback every target count is zero.
 
 ## Current execution boundary
 
 ```text
 current mode: offseason_sleep
-owner review decision requested: false
-owner review approval granted: false
+approval requested: false
+approval recorded: false
+approval granted: false
 manual schedule execution enabled: false
 maximum schedule execution count: 0
 external schedule read: false
@@ -175,6 +185,8 @@ cross-repository write: false
 - SHA-256 governance asset manifest
 - synthetic preseason schedule dry run
 - three-stage manual schedule preflight
+- aggregate owner-review packet
+- fixture-only approval state machine
 
 ## Current real-data state
 
@@ -197,18 +209,18 @@ python -m pip install -e ".[dev]"
 pytest -q
 ```
 
+Rebuild the V0.20 report:
+
+```bash
+python scripts/validate_approval_state_machine_v1.py \
+  --output runtime/reports/preseason-approval-state-machine-v1.json
+```
+
 Rebuild the V0.19 report:
 
 ```bash
 python scripts/validate_owner_review_packet_v1.py \
   --output runtime/reports/preseason-owner-review-packet-v1.json
-```
-
-Rebuild the V0.18 preflight report:
-
-```bash
-python scripts/validate_manual_schedule_preflight_v1.py \
-  --output runtime/reports/manual-schedule-import-preflight-v1.json
 ```
 
 ## Public status pages
@@ -219,6 +231,7 @@ python scripts/validate_manual_schedule_preflight_v1.py \
 ## Documentation
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
+- [`docs/preseason-approval-state-machine-v1.md`](docs/preseason-approval-state-machine-v1.md)
 - [`docs/preseason-owner-review-packet-v1.md`](docs/preseason-owner-review-packet-v1.md)
 - [`docs/manual-schedule-import-preflight-v1.md`](docs/manual-schedule-import-preflight-v1.md)
 - [`docs/preseason-dry-run-v1.md`](docs/preseason-dry-run-v1.md)
