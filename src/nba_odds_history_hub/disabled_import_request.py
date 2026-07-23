@@ -65,6 +65,16 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _checkpoint(database: Path) -> None:
+    with connect_database(database) as connection:
+        connection.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+
+
+def _remove_sqlite_sidecars(database: Path) -> None:
+    for suffix in ("-wal", "-shm", "-journal"):
+        Path(f"{database}{suffix}").unlink(missing_ok=True)
+
+
 def validate_contract(contract: dict[str, Any]) -> None:
     if contract.get("schemaVersion") != "disabled-import-request-contract-v1":
         raise DisabledImportRequestError("unexpected disabled import request schema")
@@ -224,6 +234,7 @@ def run_backup_restore_fixture(workspace: Path, contract: dict[str, Any]) -> dic
             "seed state retained by synthetic backup",
         )
 
+    _checkpoint(database)
     seed_counts = _counts(database)
     seed_sha256 = _sha256(database)
     shutil.copyfile(database, backup)
@@ -237,8 +248,12 @@ def run_backup_restore_fixture(workspace: Path, contract: dict[str, Any]) -> dic
             "mutation state must disappear after restore",
         )
 
+    _checkpoint(database)
     mutation_counts = _counts(database)
     mutation_sha256 = _sha256(database)
+
+    _remove_sqlite_sidecars(database)
+    database.unlink(missing_ok=True)
     shutil.copyfile(backup, database)
     restored_counts = _counts(database)
     restored_sha256 = _sha256(database)
