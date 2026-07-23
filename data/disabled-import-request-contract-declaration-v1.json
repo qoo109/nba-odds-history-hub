@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "disabled-import-request-public-declaration-v1",
+  "asOf": "2026-07-23",
+  "formalState": "OFFSEASON_PRESEASON_DISABLED_IMPORT_REQUEST_CONTRACT_AND_BACKUP_RESTORE_FIXTURES_V1_PENDING_VALIDATION",
+  "requestId": "SCHEDULE-DISABLED-IMPORT-REQUEST-2026-07-23-001",
+  "fixtureOnly": true,
+  "temporaryDatabaseOnly": true,
+  "approvalRequested": false,
+  "approvalRecorded": false,
+  "approvalGranted": false,
+  "executionEnabled": false,
+  "maximumExecutionCount": 0,
+  "externalScheduleRead": false,
+  "productionDatabaseTouched": false,
+  "productionScheduleImported": false,
+  "scheduledCollection": false,
+  "canonicalEventIdsCreated": 0,
+  "crossRepositoryWrite": false,
+  "shellCommandEmitted": false,
+  "productionImplementationModulePresent": false
+}
