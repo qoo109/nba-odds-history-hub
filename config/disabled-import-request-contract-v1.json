@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "disabled-import-request-contract-v1",
+  "asOf": "2026-07-23",
+  "requestId": "SCHEDULE-DISABLED-IMPORT-REQUEST-2026-07-23-001",
+  "sourceStateMachineId": "SCHEDULE-APPROVAL-STATE-MACHINE-2026-07-21-001",
+  "sourcePacketId": "SCHEDULE-OWNER-REVIEW-2026-07-21-001",
+  "state": "draft_disabled_fixture_only",
+  "requestType": "synthetic_disabled_import_request",
+  "approvalRequested": false,
+  "approvalRecorded": false,
+  "approvalGranted": false,
+  "executionEnabled": false,
+  "maximumExecutionCount": 0,
+  "targetFile": {
+    "path": "data/fixtures/preseason-dry-run-v1.json",
+    "filename": "preseason-dry-run-v1.json",
+    "bytes": 2204,
+    "sha256": "1e91072905dc8b68972fee255d85146eae171bfa9ae539faad25b1246d942512",
+    "schemaVersion": "preseason-dry-run-fixture-v1",
+    "seasonId": "2026-27"
+  },
+  "productionReferences": {
+    "approvedDatabasePath": null,
+    "backupId": null,
+    "separateFutureRequestRequired": true
+  },
+  "backupRestoreFixture": {
+    "fixtureId": "TEMP-SQLITE-BACKUP-RESTORE-2026-07-23-001",
+    "workspaceMode": "temporary_directory_only",
+    "databaseFilename": "synthetic-import-request.sqlite",
+    "backupFilename": "synthetic-import-request.backup.sqlite",
+    "seedSourceEventId": 990001,
+    "mutationSourceEventId": 990002,
+    "expectedSeedCounts": {
+      "dataSources": 1,
+      "sourceEvents": 1,
+      "scheduleVersions": 1,
+      "currentSchedules": 1,
+      "mappingAuditDecisions": 1,
+      "canonicalEvents": 0,
+      "rawImports": 0,
+      "oddsSnapshots": 0
+    },
+    "expectedMutationCounts": {
+      "dataSources": 1,
+      "sourceEvents": 2,
+      "scheduleVersions": 2,
+      "currentSchedules": 2,
+      "mappingAuditDecisions": 2,
+      "canonicalEvents": 0,
+      "rawImports": 0,
+      "oddsSnapshots": 0
+    }
+  },
+  "executionBoundary": {
+    "fixtureOnly": true,
+    "repositoryFixtureIdentityOnly": true,
+    "temporaryDatabaseOnly": true,
+    "externalFileAllowed": false,
+    "productionDatabaseAllowed": false,
+    "productionImportAllowed": false,
+    "networkCallsAllowed": false,
+    "scheduledCollectionAllowed": false,
+    "canonicalEventIdCreationAllowed": false,
+    "crossRepositoryWriteAllowed": false,
+    "rowLevelRecordsAllowed": false,
+    "shellCommandAllowed": false,
+    "productionImplementationModuleAllowed": false
+  }
+}
